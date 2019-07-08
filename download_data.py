@@ -7,12 +7,14 @@ file = open(urls_file, 'r')
 
 i = 1
 
-for line in (file && i<10):
+for line in file :
     try:
         iamge_path = path + str(i) + '.jpg'
         request.urlretrieve(line, image_path)
         print(i)
         i = i + 1
+        if i>10:
+            break
 
     except:
         print("%s timeout " % line)
