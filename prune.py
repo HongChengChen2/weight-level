@@ -123,10 +123,6 @@ def main():
             model = torch.nn.DataParallel(model).cuda()
 
     valdir = os.path.join(args.data, '')
-    print('val directory:',valdir)
-    ds = datasets.ImageFolder(valdir)
-    print(ds.classes)
-    print('batch_size:',args.batch_size)
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
@@ -211,6 +207,7 @@ def validate(val_loader, model, criterion):
 
             # compute output
             output = model(input)
+            print("class predicted: ",output)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
