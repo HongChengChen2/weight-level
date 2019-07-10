@@ -1,20 +1,16 @@
-from PIL import Image
+
+dir_path = ('data/cats/')
+
 import os
+import random
+import shutil
+files = os.listdir(dir_path)
+sample = random.sample(files, 755)
+for each in sample:
+    file_path = os.path.join(dir_path, each)
+    try:
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
-path = ('data/rabbits/')
-badFilesList = []
-for root, dirs, files in os.walk(path):
-    for each in files:
-        try:
-            im = Image.open(os.path.join(root, each))
-            # im.show()
-        except Exception as e:
-            print('Bad file:', os.path.join(root, each))
-            badFilesList.append(os.path.join(root, each))
-
-if len(badFilesList) != 0:
-    for each in badFilesList:
-        try:
-            os.remove(each)
-        except Exception as e:
-            print('Del file: %s failed, %s' % (each, e))
+    except PermissionError as e:
+        pass
