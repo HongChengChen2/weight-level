@@ -135,6 +135,7 @@ def main():
         ])),
         batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True)
+    print('data size:',len(val_loader))
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
 
     test_acc0 = validate(val_loader, model, criterion)
