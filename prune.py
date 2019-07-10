@@ -124,7 +124,7 @@ def main():
 
     valdir = os.path.join(args.data, '')
     print('val directory:',valdir)
-    ds = datasets.ImageFolder(valdir）
+    ds = datasets.ImageFolder(valdir)
     print(ds.classes)
     print(ds.imgs)
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
