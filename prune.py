@@ -17,6 +17,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
 
+#only used data to compute accuracy, not in deciding which to prune
 
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
@@ -244,12 +245,12 @@ def accuracy(output, target, topk=(1,)):
     #view() means resize() -1 means 'it depends'
     with torch.no_grad():
         batch_size = target.size(0)
-
+        print("batch_size",batch_size)
         maxk = max(topk) # = 5
         _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
-        print("pred:",pred) #is pred index?
+        print("pred:",pred) #is index 5col xrow
 
-        pred = pred.t() # a zhuanzhi transpose
+        pred = pred.t() # a zhuanzhi transpose xcol 5row
         print("pred.t():",pred)
         correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
 
