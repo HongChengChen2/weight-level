@@ -152,7 +152,7 @@ def main():
             conv_weights[index:(index+size)] = m.weight.data.view(-1).abs().clone()
             index += size
 
-    y, i = torch.sort(conv_weights)
+    y, i = torch.sort(conv_weights) 
     thre_index = int(total * args.percent)
     thre = y[thre_index]
 
@@ -190,6 +190,7 @@ def main():
     return
 
 def validate(val_loader, model, criterion):
+    # AverageMeter() : Computes and stores the average and current value
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
@@ -204,10 +205,9 @@ def validate(val_loader, model, criterion):
             if args.gpu is not None:
                 input = input.cuda(args.gpu, non_blocking=True)
             target = target.cuda(args.gpu, non_blocking=True)
-
-            # compute output
+            print("tarfet:",target)
+            # compute output,out put is a tensor
             output = model(input)
-            print("class predicted: ",output)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
@@ -240,16 +240,20 @@ def save_checkpoint(state, is_best, checkpoint, filename='pruned.pth.tar'):
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
+    #view() means resize() -1 means 'it depends'
     with torch.no_grad():
-        maxk = max(topk)
         batch_size = target.size(0)
 
+        maxk = max(topk)
+        print("maxk:",maxk)
         _, pred = output.topk(maxk, 1, True, True)
+
         pred = pred.t()
-        correct = pred.eq(target.view(1, -1).expand_as(pred))
+        print("pred.t():",pred)
+        correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
 
         res = []
-        for k in topk:
+        for k in topk: #loop twice 1&5 
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
