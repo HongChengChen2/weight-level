@@ -204,10 +204,11 @@ def validate(val_loader, model, criterion):
         for i, (input, target) in enumerate(val_loader):
             if args.gpu is not None:
                 input = input.cuda(args.gpu, non_blocking=True)
-            target = target.cuda(args.gpu, non_blocking=True)
-            print("tarfet:",target)
+            target = target.cuda(args.gpu, non_blocking=True) # 0*100 + 1*100 +2*100
+            print("target:",target)
             # compute output,out put is a tensor
             output = model(input)
+            print("output:",output)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
@@ -244,11 +245,11 @@ def accuracy(output, target, topk=(1,)):
     with torch.no_grad():
         batch_size = target.size(0)
 
-        maxk = max(topk)
-        print("maxk:",maxk)
-        _, pred = output.topk(maxk, 1, True, True)
+        maxk = max(topk) # = 5
+        _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
+        print("pred:",pred) #is pred index?
 
-        pred = pred.t()
+        pred = pred.t() # a zhuanzhi transpose
         print("pred.t():",pred)
         correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
 
