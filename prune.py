@@ -210,8 +210,8 @@ def validate(val_loader, model, criterion):
             # compute output,out put is a tensor
             output = model(input)
 
-            print("output:",output)
-            print("[0][0] :",output[0][0].item())
+            #print("output:",output)
+            #print("[0][0] :",output[0][0].item())
 
             loss = criterion(output, target)
 
@@ -254,7 +254,9 @@ def accuracy(output, target, topk=(1,)):
         #print("pred:",pred) #is index 5col xrow
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
-        #print("pred.t():",pred)
+        print("pred.t():",pred)
+        print("[0]:",pred[0])
+
         correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
 
         res = []
