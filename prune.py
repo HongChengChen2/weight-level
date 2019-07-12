@@ -251,11 +251,11 @@ def accuracy(output, target, topk=(1,)):
         #print("batch_size",batch_size)
         maxk = max(topk) # = 5
         _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
-        #print("pred:",pred) #is index 5col xrow
+        print("pred:",pred) #is index 5col xrow
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
         #print("pred.t():",pred)
-        #print("size:",pred[0][0].type())
+        #print("size:",pred[0][0].type()) #5,12
 
         for x in range(0,pred.size()[0]):
             for y in range(0,pred.size()[1]):
