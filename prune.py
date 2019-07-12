@@ -260,11 +260,11 @@ def accuracy(output, target, topk=(1,)):
         for x in range(0,pred.size()[0]):
             for y in range(0,pred.size()[1]):
                 if pred[x][y] >=281 and pred[x][y]<=285 :
-                    pred[x][y].item = 0
+                    pred[x][y] = 0
                 elif pred[x][y] >=151 and pred[x][y]<=268 :
-                    pred[x][y].item = 1                
+                    pred[x][y] = 1                
                 elif pred[x][y] >=330 and pred[x][y]<=332 :
-                    pred[x][y].item = 1
+                    pred[x][y] = 1
 
         print("pred after:",pred)
 
