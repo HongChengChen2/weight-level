@@ -255,15 +255,15 @@ def accuracy(output, target, topk=(1,)):
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
         print("pred.t():",pred)
-        print("size:",pred.size()[0])
+        print("size:",pred[0][0].type())
 
         for x in range(0,pred.size()[0]):
             for y in range(0,pred.size()[1]):
-                if pred[x][y].item >=281 and pred[x][y].item<=285 :
+                if pred[x][y] >=281 and pred[x][y]<=285 :
                     pred[x][y].item = 0
-                elif pred[x][y].item >=151 and pred[x][y].item<=268 :
+                elif pred[x][y] >=151 and pred[x][y]<=268 :
                     pred[x][y].item = 1                
-                elif pred[x][y].item >=330 and pred[x][y].item<=332 :
+                elif pred[x][y] >=330 and pred[x][y]<=332 :
                     pred[x][y].item = 1
 
         correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
