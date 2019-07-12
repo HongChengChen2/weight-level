@@ -253,20 +253,23 @@ def accuracy(output, target, topk=(1,)):
         _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
         print("pred:",pred) #is index 5col xrow
 
-        pred = pred.t() # a zhuanzhi transpose xcol 5row
-        #print("pred.t():",pred)
-        #print("size:",pred[0][0].type()) #5,12
-
         for x in range(0,pred.size()[0]):
             for y in range(0,pred.size()[1]):
                 if pred[x][y] >=281 and pred[x][y]<=285 :
                     pred[x][y] = 0
+                    break
                 elif pred[x][y] >=151 and pred[x][y]<=268 :
-                    pred[x][y] = 1                
+                    pred[x][y] = 1 
+                    break               
                 elif pred[x][y] >=330 and pred[x][y]<=332 :
                     pred[x][y] = 2
+                    break
+        print("pred after:",pred)
 
-        #print("pred after:",pred)
+        pred = pred.t() # a zhuanzhi transpose xcol 5row
+        #print("pred.t():",pred)
+        #print("size:",pred[0][0].type()) #5,12
+
 
         correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
 
