@@ -274,6 +274,7 @@ def accuracy(output, target, topk=(1,)):
         for k in topk: #loop twice 1&5 
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
             print("correct_k:",correct_k)
+            print("batch_size:",batch_size)
 
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
