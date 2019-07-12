@@ -255,7 +255,7 @@ def accuracy(output, target, topk=(1,)):
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
         print("pred.t():",pred)
-        print("[0]:",pred[0])
+        print("size:",pred.size())
 
         correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
 
