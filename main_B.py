@@ -39,8 +39,8 @@ parser.add_argument('--epochs', default=90, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
-parser.add_argument('-b', '--batch-size', default=128, type=int,
-                    metavar='N', help='mini-batch size (default: 128)')
+parser.add_argument('-b', '--batch-size', default=64, type=int,
+                    metavar='N', help='mini-batch size (default: 64)')
 parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
@@ -258,6 +258,10 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
         # compute output
         output = model(input)
+    
+        print("target:",target)
+        print("output:",output)            
+        print("output.size:",output.size)  
         loss = criterion(output, target)
 
         # measure accuracy and record loss
@@ -316,9 +320,7 @@ def validate(val_loader, model, criterion):
             target = target.cuda(args.gpu, non_blocking=True)
 
             # compute output
-            output = model(input)
-            print("target:",target)
-            print("output:",output)            
+            output = model(input)          
             loss = criterion(output, target)
 
             # measure accuracy and record loss
