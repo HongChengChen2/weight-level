@@ -1,11 +1,11 @@
 
-dir_path = ('data/cats/')
+dir_path = ('data/train/rabbits/')
 
 import os
 import random
 import shutil
 files = os.listdir(dir_path)
-sample = random.sample(files, 755)
+sample = random.sample(files, 349)
 for each in sample:
     file_path = os.path.join(dir_path, each)
     try:
