@@ -251,7 +251,7 @@ def accuracy(output, target, topk=(1,)):
         #print("batch_size",batch_size)
         maxk = max(topk) # = 5
         _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
-        print("pred:",pred) #is index 5col xrow
+        #print("pred:",pred) #is index 5col xrow
 
         for x in range(0,pred.size()[0]):
             for y in range(0,pred.size()[1]):
@@ -264,7 +264,7 @@ def accuracy(output, target, topk=(1,)):
                 elif pred[x][y] >=330 and pred[x][y]<=332 :
                     pred[x][y] = 2
                     break
-        print("pred after:",pred)
+        #print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
         #print("pred.t():",pred)
@@ -276,8 +276,6 @@ def accuracy(output, target, topk=(1,)):
         res = []
         for k in topk: #loop twice 1&5 
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
-            print("correct_k:",correct_k)
-            print("batch_size:",batch_size)
 
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
