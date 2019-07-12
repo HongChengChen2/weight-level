@@ -269,11 +269,12 @@ def accuracy(output, target, topk=(1,)):
         #print("pred after:",pred)
 
         correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
-        print("correct:",correct)
 
         res = []
         for k in topk: #loop twice 1&5 
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+            print("correct_k:",correct_k)
+
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
 
