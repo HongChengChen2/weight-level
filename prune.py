@@ -211,7 +211,7 @@ def validate(val_loader, model, criterion):
             output = model(input)
 
             print("output:",output)
-            print("[0][0] :",output[0][0])
+            print("[0][0] :",output[0][0][0])
 
             loss = criterion(output, target)
 
