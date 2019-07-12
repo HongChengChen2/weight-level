@@ -209,9 +209,10 @@ def validate(val_loader, model, criterion):
             #print("target:",target)
             # compute output,out put is a tensor
             output = model(input)
-            for each in output:
-                print("each:" , each)
-            #print("output:",output)
+
+            print("output:",output)
+            print("[0][0] :",output[0][0])
+
             loss = criterion(output, target)
 
             # measure accuracy and record loss
