@@ -264,7 +264,7 @@ def accuracy(output, target, topk=(1,)):
                 elif pred[x][y] >=151 and pred[x][y]<=268 :
                     pred[x][y] = 1                
                 elif pred[x][y] >=330 and pred[x][y]<=332 :
-                    pred[x][y] = 1
+                    pred[x][y] = 2
 
         #print("pred after:",pred)
 
