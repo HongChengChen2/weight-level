@@ -163,17 +163,16 @@ def main():
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
     model.train(True)
+    model.cuda(args.gpu)
     for epoch in range(10):
         print("===epoc===%d"%epoch)
 
         for i,(data,y) in enumerate(train_loader):
             data=Variable(data,requires_grad=True)
             #y=Variable(y,requires_grad=True)
-            print(data.requires_grad)
 
             if args.gpu is not None:
                 data = data.cuda(args.gpu, non_blocking=True)
-                print('ok1')
             y = y.cuda(args.gpu, non_blocking=True)
 
             out = model(data)
