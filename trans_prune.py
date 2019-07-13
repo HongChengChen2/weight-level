@@ -4,6 +4,7 @@ import random
 import shutil
 import time
 import warnings
+import numpy as np
 
 import torch
 import torch.nn as nn
@@ -13,10 +14,12 @@ import torch.distributed as dist
 import torch.optim
 import torch.utils.data
 import torch.utils.data.distributed
+import torch.nn.functional as F
 import torch.optim as optim
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
+from torch.autograd import Variable
 
 #only used data to compute accuracy, not in deciding which to prune
 
