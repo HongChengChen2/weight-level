@@ -130,7 +130,7 @@ def main():
                                      std=[0.229, 0.224, 0.225])
 
 
-    data_tranform = transforms.Compose([
+    data_transform = transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
