@@ -74,7 +74,7 @@ parser.add_argument('--save',default='',type=str)
 
 best_prec1 = 0
 
-@torchsnooper.snoop()
+#@torchsnooper.snoop()
 def main():
     global args, best_prec1
     args = parser.parse_args()
