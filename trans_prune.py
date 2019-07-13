@@ -167,7 +167,7 @@ def main():
 
         for i,(data,y) in enumerate(train_loader):
             data=Variable(data,requires_grad=True)
-            y=Variable(y,requires_grad=True)
+            y=Variable(y)
             print(data.requires_grad)
 
             if args.gpu is not None:
