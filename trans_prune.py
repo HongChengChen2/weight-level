@@ -123,22 +123,56 @@ def main():
         else:
             model = torch.nn.DataParallel(model).cuda()
 
-    valdir = os.path.join(args.data, '')
+    valdir_train = os.path.join(args.data, 'train/')
+    valdir_test = os.path.join(args.data, 'test/')
+
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
-    val_loader = torch.utils.data.DataLoader(
-        datasets.ImageFolder(valdir, transforms.Compose([
+
+    data_tranform = transforms.Compose([
             transforms.Resize(256),
             transforms.CenterCrop(224),
             transforms.ToTensor(),
             normalize,
-        ])),
-        batch_size=args.batch_size, shuffle=False,
+        ])
+
+    train_dataset = datasets.ImageFolder(valdir_train, transform=data_transform)
+    test_dataset = datasets.ImageFolder(valdir_test, transform=data_transform)
+
+    train_loader = torch.utils.data.DataLoader(train_dataset , batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True)
+    test_loader = torch.utils.data.DataLoader(test_dataset , batch_size=args.batch_size, shuffle=False,
+        num_workers=args.workers, pin_memory=True)
+
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
 
-    test_acc0 = validate(val_loader, model, criterion)
+    for param in model.parameters(): #params have requires_grad=True by default
+        param.requires_grad = False
+
+    num_ftrs = model.classifier[6].in_features
+    model.classifier[6] = nn.Linear(num_ftrs, 3)
+
+    optimizer = optim.Adam(model.parameters(),lr=0.001)
+
+    model.train(True)
+    for epoch in range(10):
+        print("===epoc===%d"%epoch)
+        for i,(data,y) in enumerate(train_loader):
+            data=Variable(data,requires_grad=True)
+            # y=Variable(y,requires_grad=True)
+            print(data.requires_grad)
+            out=model(data)
+            print(out)
+            loss=criterion(out,y)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            print('loss:',loss,loss.item())
+
+    model.train(False)
+
+    test_acc0 = validate(test_loader, model, criterion)
     #############################################################################################################################
     total = 0
     for m in model.modules():
@@ -172,7 +206,7 @@ def main():
                 format(k, mask.numel(), int(torch.sum(mask))))
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
     ##############################################################################################################################
-    test_acc1 = validate(val_loader, model, criterion)
+    test_acc1 = validate(test_loader, model, criterion)
 
     save_checkpoint({
             'epoch': 0,
@@ -252,18 +286,6 @@ def accuracy(output, target, topk=(1,)):
         maxk = max(topk) # = 5
         _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
         #print("pred:",pred) #is index 5col xrow
-
-        for x in range(0,pred.size()[0]):
-            for y in range(0,pred.size()[1]):
-                if pred[x][y] >=281 and pred[x][y]<=285 :
-                    pred[x][y] = 0
-                    break
-                elif pred[x][y] >=151 and pred[x][y]<=268 :
-                    pred[x][y] = 1 
-                    break               
-                elif pred[x][y] >=330 and pred[x][y]<=332 :
-                    pred[x][y] = 2
-                    break
         #print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
