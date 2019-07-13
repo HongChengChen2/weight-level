@@ -167,15 +167,15 @@ def main():
 
         for i,(data,y) in enumerate(train_loader):
             data=Variable(data,requires_grad=True)
-            # y=Variable(y,requires_grad=True)
+            y=Variable(y,requires_grad=True)
             print(data.requires_grad)
 
             if args.gpu is not None:
                 data = data.cuda(args.gpu, non_blocking=True)
                 print('ok1')
-            y = y.cuda(args.gpu, non_blocking=True)
+            #y = y.cuda(args.gpu, non_blocking=True)
 
-            out=model(data)
+            out = model(data)
 
             print(out)
             loss=criterion(out,y)
