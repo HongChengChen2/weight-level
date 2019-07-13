@@ -155,6 +155,7 @@ def main():
 
     for param in model.parameters(): #params have requires_grad=True by default
         param.requires_grad = False
+        param.cuda(args.gpu)
 
     num_ftrs = model.classifier[6].in_features
     model.classifier[6] = nn.Linear(num_ftrs, 3)
