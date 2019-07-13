@@ -166,6 +166,11 @@ def main():
             data=Variable(data,requires_grad=True)
             # y=Variable(y,requires_grad=True)
             print(data.requires_grad)
+
+            if args.gpu is not None:
+                data = data.cuda(args.gpu, non_blocking=True)
+            y = y.cuda(args.gpu, non_blocking=True)
+
             out=model(data)
             print(out)
             loss=criterion(out,y)
