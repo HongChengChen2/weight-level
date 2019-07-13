@@ -177,7 +177,7 @@ def main():
 
             out = model(data)
 
-            print(out)
+            #print(out)
             loss=criterion(out,y)
             optimizer.zero_grad()
             loss.backward()
