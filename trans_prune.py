@@ -67,7 +67,7 @@ parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
 parser.add_argument('--seed', default=None, type=int,
                     help='seed for initializing training. ')
-parser.add_argument('--gpu', default=None, type=int,
+parser.add_argument('--gpu', default=0, type=int,
                     help='GPU id to use.')
 parser.add_argument('--percent',default=0.1,type=float)
 parser.add_argument('--save',default='',type=str)
@@ -167,13 +167,13 @@ def main():
 
         for i,(data,y) in enumerate(train_loader):
             data=Variable(data,requires_grad=True)
-            y=Variable(y)
+            #y=Variable(y,requires_grad=True)
             print(data.requires_grad)
 
             if args.gpu is not None:
                 data = data.cuda(args.gpu, non_blocking=True)
                 print('ok1')
-            #y = y.cuda(args.gpu, non_blocking=True)
+            y = y.cuda(args.gpu, non_blocking=True)
 
             out = model(data)
 
