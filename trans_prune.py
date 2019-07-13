@@ -74,7 +74,7 @@ parser.add_argument('--save',default='',type=str)
 
 best_prec1 = 0
 
-@torchsnooper.snoop()
+#@torchsnooper.snoop()
 def main():
     global args, best_prec1
     args = parser.parse_args()
@@ -117,6 +117,7 @@ def main():
         checkpoint = torch.load(args.resume)
         model.load_state_dict(checkpoint)
 
+    model.train(True)
     if args.gpu is not None:
         model = model.cuda(args.gpu)
     elif args.distributed:
@@ -162,8 +163,6 @@ def main():
 
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
-    model.train(True)
-    model.cuda(args.gpu)
     for epoch in range(10):
         print("===epoc===%d"%epoch)
 
