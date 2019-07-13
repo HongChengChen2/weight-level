@@ -169,9 +169,11 @@ def main():
 
             if args.gpu is not None:
                 data = data.cuda(args.gpu, non_blocking=True)
+                print('ok1')
             y = y.cuda(args.gpu, non_blocking=True)
 
             out=model(data)
+
             print(out)
             loss=criterion(out,y)
             optimizer.zero_grad()
