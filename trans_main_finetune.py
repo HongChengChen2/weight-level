@@ -132,7 +132,7 @@ def main():
             num_ftrs = model.classifier[6].in_features
             model.classifier[6] = nn.Linear(num_ftrs, 3)
             model.load_state_dict(checkpoint['state_dict'],strict=False)
-            print(model)
+            #print(model)
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
@@ -173,6 +173,7 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     if args.evaluate:
+        print("before train:")
         validate(val_loader, model, criterion)
         return
 
