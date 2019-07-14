@@ -102,6 +102,8 @@ def main():
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
+        num_ftrs = model.classifier[6].in_features
+        model.classifier[6] = nn.Linear(num_ftrs, 3)
 
     if args.gpu is not None:
         model = model.cuda(args.gpu)
