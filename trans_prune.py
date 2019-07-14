@@ -286,6 +286,7 @@ def validate(val_loader, model, criterion):
 
 def save_checkpoint(state, is_best, checkpoint, filename='pruned.pth.tar'):
     filepath = os.path.join(checkpoint, filename)
+    print(state)
     torch.save(state, filepath)
 
 def accuracy(output, target, topk=(1,)):
