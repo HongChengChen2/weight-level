@@ -136,7 +136,7 @@ def main():
                 name = k.replace(".module", "") # removing ‘.moldule’ from key
                 new_checkpoint[name]=v
 
-            print("new_checkpoint:",new_checkpoint)
+            #print("new_checkpoint:",new_checkpoint)
             num_ftrs = model.classifier[6].in_features
             model.classifier[6] = nn.Linear(num_ftrs, 3)
             model.load_state_dict(new_checkpoint['state_dict'],strict=False)
@@ -301,6 +301,7 @@ def validate(val_loader, model, criterion):
 
             # compute output
             output = model(input)
+            print("output",output)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
