@@ -272,7 +272,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # compute output
         output = model(input)
 
-        #print("output:",output)            
+        print("output:",output)            
         #print("output.shape:",output.shape)  
         loss = criterion(output, target)
 
