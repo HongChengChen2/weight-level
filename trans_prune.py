@@ -285,7 +285,7 @@ def validate(val_loader, model, criterion):
     return top1.avg
 
 def save_checkpoint(state, is_best, checkpoint, filename='pruned.pth.tar'):
-    print("state_dict", checkpoint)
+    print("state_dict", state)
     filepath = os.path.join(checkpoint, filename)
     torch.save(state, filepath)
 
