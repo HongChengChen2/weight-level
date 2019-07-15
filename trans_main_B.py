@@ -148,7 +148,7 @@ def main():
             checkpoint = torch.load(args.resume)
             num_ftrs = model_ref.classifier[6].in_features
             model_ref.classifier[6] = nn.Linear(num_ftrs, 3)
-            model_ref.load_state_dict(checkpoint['state_dict'])
+            model_ref.load_state_dict(checkpoint['state_dict'],strict=False)
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
