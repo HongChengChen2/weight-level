@@ -146,6 +146,8 @@ def main():
         if os.path.isfile(args.resume):
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume)
+            num_ftrs = model_ref.classifier[6].in_features
+            model_ref.classifier[6] = nn.Linear(num_ftrs, 3)
             model_ref.load_state_dict(checkpoint['state_dict'])
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
