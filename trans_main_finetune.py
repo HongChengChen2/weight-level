@@ -330,17 +330,27 @@ def save_checkpoint(state, is_best, checkpoint, filename='scratch.pth.tar'):
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
+    #view() means resize() -1 means 'it depends'
+    print("target:", target)
     with torch.no_grad():
-        maxk = max(topk)
         batch_size = target.size(0)
+        #print("batch_size",batch_size)
+        maxk = max(topk) # = 5
+        _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
+        #print("pred:",pred) #is index 5col xrow
+        print("pred after:",pred)
 
-        _, pred = output.topk(maxk, 1, True, True)
-        pred = pred.t()
-        correct = pred.eq(target.view(1, -1).expand_as(pred))
+        pred = pred.t() # a zhuanzhi transpose xcol 5row
+        #print("pred.t():",pred)
+        #print("size:",pred[0][0].type()) #5,12
+
+
+        correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
 
         res = []
-        for k in topk:
+        for k in topk: #loop twice 1&5 
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
 
