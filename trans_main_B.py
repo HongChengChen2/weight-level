@@ -290,7 +290,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
             if isinstance(m, nn.Conv2d):
                 weight_copy = m.weight.data.abs().clone()
                 mask = weight_copy.gt(0).float().cuda()
-                print("mask: ", mask)
+                print("mask size: ", mask.size()) # a tesnor with all 1
                 m.weight.grad.data.mul_(mask)
 
         optimizer.step()
