@@ -139,7 +139,7 @@ def main():
             num_ftrs = model.classifier[6].in_features
             model.classifier[6] = nn.Linear(num_ftrs, 3)
             model.load_state_dict(new_checkpoint['state_dict'],strict=False)
-            #print(model)
+            print("load success:",model.named_parameters())
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
@@ -181,6 +181,7 @@ def main():
 
     if args.evaluate:
         print("before train:")
+        model.cuda()
         validate(val_loader, model, criterion)
         return
 
