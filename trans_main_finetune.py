@@ -133,7 +133,7 @@ def main():
 
             new_checkpoint = OrderedDict()
             for k, v in checkpoint.items():
-                name = k.replace(".module", “”) # removing ‘.moldule’ from key
+                name = k.replace(".module", "") # removing ‘.moldule’ from key
                 new_checkpoint[name]=v
 
 
