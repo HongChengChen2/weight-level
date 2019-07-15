@@ -108,7 +108,12 @@ def main():
     else: #this way
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
+        num_ftrs = model.classifier[6].in_features
+        model.classifier[6] = nn.Linear(num_ftrs, 3)  
+
         model_ref = models.__dict__[args.arch]()
+        num_ftrs = model_ref.classifier[6].in_features
+        model_ref.classifier[6] = nn.Linear(num_ftrs, 3)
 
     ######################################################################################################
     flops_std = count_model_param_flops(model)
@@ -154,8 +159,6 @@ def main():
                 name = k.replace(".module", "") # removing ‘.moldule’ from key
                 new_checkpoint[name]=v
 
-            num_ftrs = model_ref.classifier[6].in_features
-            model_ref.classifier[6] = nn.Linear(num_ftrs, 3)
             model_ref.load_state_dict(new_checkpoint['state_dict'],strict=False)
 
         else:
@@ -269,7 +272,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # compute output
         output = model(input)
 
-        print("output:",output)            
+        #print("output:",output)            
         print("output.shape:",output.shape)  
         loss = criterion(output, target)
 
