@@ -286,10 +286,11 @@ def train(train_loader, model, criterion, optimizer, epoch):
         loss.backward()
 
         for k, m in enumerate(model.modules()):
-            print(k, m)
+            #print(k, m)
             if isinstance(m, nn.Conv2d):
                 weight_copy = m.weight.data.abs().clone()
                 mask = weight_copy.gt(0).float().cuda()
+                print("mask: ", mask)
                 m.weight.grad.data.mul_(mask)
 
         optimizer.step()
