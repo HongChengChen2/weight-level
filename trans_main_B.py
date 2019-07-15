@@ -261,32 +261,32 @@ def train(train_loader, model, criterion, optimizer, epoch):
     model.train()
 
     end = time.time()
-    for i, (input, target) in enumerate(train_loader):
+    for i, (data, target) in enumerate(train_loader):
         # measure data loading time
         data_time.update(time.time() - end)
 
         if args.gpu is not None:
-            input = input.cuda(args.gpu, non_blocking=True)
+            data = data.cuda(args.gpu, non_blocking=True)
         target = target.cuda(args.gpu, non_blocking=True)
 
         # compute output
-        output = model(input)
+        output = model(data)
 
-        print("output:",output)            
+        #print("output:",output)            
         #print("output.shape:",output.shape)  
         loss = criterion(output, target)
 
         # measure accuracy and record loss
         prec1, prec5 = accuracy(output, target, topk=(1, 1))
-        losses.update(loss.item(), input.size(0))
-        top1.update(prec1[0], input.size(0))
+        losses.update(loss.item(), data.size(0))
+        top1.update(prec1[0], data.size(0))
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
         loss.backward()
 
         for k, m in enumerate(model.modules()):
-            # print(k, m)
+            print(k, m)
             if isinstance(m, nn.Conv2d):
                 weight_copy = m.weight.data.abs().clone()
                 mask = weight_copy.gt(0).float().cuda()
@@ -323,19 +323,19 @@ def validate(val_loader, model, criterion):
 
     with torch.no_grad():
         end = time.time()
-        for i, (input, target) in enumerate(val_loader):
+        for i, (data, target) in enumerate(val_loader):
             if args.gpu is not None:
-                input = input.cuda(args.gpu, non_blocking=True)
+                data = data.cuda(args.gpu, non_blocking=True)
             target = target.cuda(args.gpu, non_blocking=True)
 
             # compute output
-            output = model(input)          
+            output = model(data)          
             loss = criterion(output, target)
 
             # measure accuracy and record loss
             prec1, prec5 = accuracy(output, target, topk=(1, 1))
-            losses.update(loss.item(), input.size(0))
-            top1.update(prec1[0], input.size(0))
+            losses.update(loss.item(), data.size(0))
+            top1.update(prec1[0], data.size(0))
 
             # measure elapsed time
             batch_time.update(time.time() - end)
