@@ -16,6 +16,8 @@ import torch.utils.data.distributed
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
+from collections import OrderedDict
+
 
 
 model_names = sorted(name for name in models.__dict__
@@ -128,6 +130,12 @@ def main():
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume)
             #print(checkpoint['state_dict'])
+
+            new_checkpoint = OrderedDict()
+            for k, v in checkpoint.items():
+                name = k.replace(".module", “”) # removing ‘.moldule’ from key
+                new_checkpoint[name]=v
+
 
             num_ftrs = model.classifier[6].in_features
             model.classifier[6] = nn.Linear(num_ftrs, 3)
