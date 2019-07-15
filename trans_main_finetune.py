@@ -104,6 +104,8 @@ def main():
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
+        num_ftrs = model.classifier[6].in_features
+        model.classifier[6] = nn.Linear(num_ftrs, 3)
 
     if args.gpu is not None:
         model = model.cuda(args.gpu)
@@ -137,8 +139,7 @@ def main():
                 new_checkpoint[name]=v
 
             #print("new_checkpoint:",new_checkpoint)
-            num_ftrs = model.classifier[6].in_features
-            model.classifier[6] = nn.Linear(num_ftrs, 3)
+
             model.load_state_dict(new_checkpoint['state_dict'],strict=False)
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
@@ -338,10 +339,9 @@ def accuracy(output, target, topk=(1,)):
         maxk = max(topk) # = 5
         _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
         #print("pred:",pred) #is index 5col xrow
-        print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
-        #print("pred.t():",pred)
+        print("pred.t():",pred)
         #print("size:",pred[0][0].type()) #5,12
 
 
