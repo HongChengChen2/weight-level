@@ -297,7 +297,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
             #print(k, m) #print the net
             if isinstance(m, nn.Conv2d):
                 weight_copy = m.weight.data.abs().clone()
-                print("weight_copy" , weight_copy)
+                print("weight_copy.size" , weight_copy.size()) #normal tensor with some 0
                 mask = weight_copy.gt(0).float().cuda()
                 #print("mask size: ", mask.size()) # a tesnor with all 1 size:n*n*3*3
                 m.weight.grad.data.mul_(mask)
