@@ -243,8 +243,8 @@ def main():
     model_new = models.__dict__[args.arch]()
     num_ftrs = model_new.classifier[6].in_features
     model_new.classifier[6] = nn.Linear(num_ftrs, 3)
-    model_new.cuda()
-    model_new = torch.nn.parallel.DistributedDataParallel(model_new)
+    model_new = model_new.cuda(args.gpu)
+
     print("=> loading checkpoint ..")
     checkpoint = torch.load("/home/leander/hcc/prunWeight/save/pruned.pth.tar")
     #print(checkpoint['state_dict'])
@@ -310,7 +310,7 @@ def validate(val_loader, model, criterion):
     return top1.avg
 
 def save_checkpoint(state, is_best, checkpoint, filename='pruned.pth.tar'):
-    print("state_dict", state)
+    #print("state_dict", state)
     filepath = os.path.join(checkpoint, filename)
     torch.save(state, filepath)
 
