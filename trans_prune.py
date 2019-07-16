@@ -120,21 +120,17 @@ def main():
         model.load_state_dict(checkpoint)
 
     if args.gpu is not None:
-        model = model.cuda(args.gpu)
-        print("ok1_")
+        model = model.cuda(args.gpu) #this way
     elif args.distributed:
         model.cuda()
         model = torch.nn.parallel.DistributedDataParallel(model)
-        print("ok2_")
     else:
         if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
             model.features = torch.nn.DataParallel(model.features)
             model.cuda()
-            print("ok3_")
 
         else:
             model = torch.nn.DataParallel(model).cuda()
-            print("ok4_")
 
 
     valdir_train = os.path.join(args.data, 'train/')
@@ -318,7 +314,7 @@ def validate(val_loader, model, criterion):
     return top1.avg
 
 def save_checkpoint(state, is_best, checkpoint, filename='pruned.pth.tar'):
-    print("state_dict", state.keys())
+    print("state_dict", state[state_dict].keys())
     filepath = os.path.join(checkpoint, filename)
     torch.save(state, filepath)
 
