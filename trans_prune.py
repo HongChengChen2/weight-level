@@ -240,7 +240,7 @@ def main():
             f.write("There exists a layer with 0 parameters left.")
 
     ''' a test
-    '''
+    
     
     model_new = models.__dict__[args.arch]()
     num_ftrs = model_new.classifier[6].in_features
@@ -260,7 +260,7 @@ def main():
 
     model_new.load_state_dict(new_checkpoint['state_dict'])
     validate(test_loader, model_new, criterion)
-
+'''
 
     
     return
