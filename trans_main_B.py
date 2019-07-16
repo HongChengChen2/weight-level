@@ -152,7 +152,7 @@ def main():
     if args.resume:
         if os.path.isfile(args.resume):
             print("=> loading checkpoint '{}'".format(args.resume))
-            checkpoint = torch.load(args.resume)
+            checkpoint = torch.load(args.resume).get('state_dict')
             new_checkpoint = OrderedDict()
 
             for k, v in checkpoint.items():
