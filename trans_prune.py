@@ -236,6 +236,31 @@ def main():
 
         if zero_flag:
             f.write("There exists a layer with 0 parameters left.")
+
+    ''' a test
+    '''
+    
+    model_new = models.__dict__[args.arch]()
+    num_ftrs = model_new.classifier[6].in_features
+    model_new.classifier[6] = nn.Linear(num_ftrs, 3)
+    model_new.cuda()
+    model_new = torch.nn.parallel.DistributedDataParallel(model_new)
+    print("=> loading checkpoint ..")
+    checkpoint = torch.load("/home/leander/hcc/prunWeight/save/pruned.pth.tar")
+    #print(checkpoint['state_dict'])
+
+    new_checkpoint = OrderedDict()
+    for k, v in checkpoint.items():
+        name = k.replace(".module", "") # removing ‘.moldule’ from key
+        new_checkpoint[name]=v
+
+    #print("new_checkpoint:",new_checkpoint)
+
+    model_new.load_state_dict(new_checkpoint['state_dict'])
+    validate(test_loader, model_new, criterion)
+
+
+    
     return
 
 def validate(val_loader, model, criterion):

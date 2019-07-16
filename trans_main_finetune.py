@@ -140,7 +140,7 @@ def main():
 
             #print("new_checkpoint:",new_checkpoint)
 
-            model.load_state_dict(new_checkpoint['state_dict'],strict=False)
+            model.load_state_dict(new_checkpoint['state_dict'])
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
@@ -288,7 +288,6 @@ def validate(val_loader, model, criterion):
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
-    top5 = AverageMeter()
 
     # switch to evaluate mode
     model.eval()
