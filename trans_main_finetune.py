@@ -143,12 +143,11 @@ def main():
             #print("new_checkpoint:",new_checkpoint)
 
             for k, v in checkpoint.items():
-            if 'module' not in k:
-                k = 'module.'+k
-            else:
-                k = k.replace('features.module.', 'module.features.')
-            new_checkpoint[k]=v
-
+                if 'module' not in k:
+                    k = 'module.'+k
+                else:
+                    k = k.replace('features.module.', 'module.features.')
+                new_checkpoint[k]=v
 
             model.load_state_dict(new_checkpoint['state_dict'])
         else:
