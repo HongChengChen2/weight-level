@@ -165,7 +165,7 @@ def main():
                     #print("new_k", k)
                     new_checkpoint[k]=v
 
-            model.load_state_dict(new_checkpoint)
+            model_ref.load_state_dict(new_checkpoint)
 
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
@@ -217,7 +217,7 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     if args.evaluate:
-        validate(val_loader, model, criterion)
+        validate(val_loader, model_ref, criterion)
         return
 
     for epoch in range(args.start_epoch, args.epochs):
@@ -278,8 +278,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
         # compute output
         output = model(data)
 
-        print("model",model)
-        print("output:",output)            
+        #print("model",model)
+        #print("output:",output)            
         #print("output.shape:",output.shape)  
         loss = criterion(output, target)
 
