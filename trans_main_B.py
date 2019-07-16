@@ -217,7 +217,7 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     if args.evaluate:
-        validate(val_loader, model_ref, criterion)
+        validate(val_loader, model, criterion)
         return
 
     for epoch in range(args.start_epoch, args.epochs):
