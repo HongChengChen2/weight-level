@@ -168,7 +168,7 @@ def main():
 
     model.train(True)
     model.cuda(args.gpu)
-    for epoch in range(10):
+    for epoch in range(args.start-epoch , args.epochs):
         print("===epoc===%d"%epoch)
 
         for i,(data,y) in enumerate(train_loader):
