@@ -159,12 +159,10 @@ def main():
 
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
 
-    '''
     for param in model.parameters(): #params have requires_grad=True by default
-        param.requires_grad = False #only train the last layer:fc layer
-        param.cuda(args.gpu)
-    '''
-    
+    param.requires_grad = False #only train the last layer:fc layer
+    param.cuda(args.gpu)
+
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
     model.train(True)
