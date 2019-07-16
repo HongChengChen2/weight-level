@@ -145,9 +145,8 @@ def main():
             for k, v in checkpoint.items():
                 if 'module' not in k:
                     k = 'module.'+k
-                else:
                     k = k.replace('features.module.', 'module.features.')
-                new_checkpoint[k]=v
+                    new_checkpoint[k]=v
 
             model.load_state_dict(new_checkpoint)
         else:
