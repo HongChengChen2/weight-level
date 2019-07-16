@@ -16,6 +16,8 @@ import torch.utils.data.distributed
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
+from collections import OrderedDict
+
 
 
 model_names = sorted(name for name in models.__dict__
@@ -32,7 +34,7 @@ parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',
                         ' (default: resnet18)')
 parser.add_argument('-j', '--workers', default=40, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
-parser.add_argument('--epochs', default=10, type=int, metavar='N',
+parser.add_argument('--epochs', default=5, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
@@ -44,7 +46,7 @@ parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
-parser.add_argument('--print-freq', '-p', default=10, type=int,
+parser.add_argument('--print-freq', '-p', default=1, type=int,
                     metavar='N', help='print frequency (default: 10)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
@@ -126,24 +128,48 @@ def main():
     if args.resume:
         if os.path.isfile(args.resume):
             print("=> loading checkpoint '{}'".format(args.resume))
-            checkpoint = torch.load(args.resume)
-            model.load_state_dict(checkpoint['state_dict'])
+            checkpoint = torch.load(args.resume).get('state_dict')
+            #print(checkpoint.keys())
+
+            new_checkpoint = OrderedDict()
+
+            '''
+            for k, v in checkpoint.items():
+                name = k.replace(".module", "") # removing ‘.moldule’ from key
+                new_checkpoint[name]=v
+            '''
+            #print("new_checkpoint:",new_checkpoint)
+
+            for k, v in checkpoint.items():
+                if 'classifier' in k :
+                    new_checkpoint[k]=v
+
+                elif 'module' not in k :
+                    k = 'module.'+k
+                    k = k.replace('module.features.','features.module.')
+                    #print("new_k", k)
+                    new_checkpoint[k]=v
+
+            model.load_state_dict(new_checkpoint)
+            num_ftrs = model.classifier[6].in_features
+            model.classifier[6] = nn.Linear(num_ftrs, 3)
+
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
     cudnn.benchmark = True
 
     # Data loading code
-    traindir = os.path.join(args.data, 'train')
-    valdir = os.path.join(args.data, 'val')
+    traindir = os.path.join(args.data, 'train/')
+    valdir = os.path.join(args.data, 'test/')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
     train_dataset = datasets.ImageFolder(
         traindir,
         transforms.Compose([
-            transforms.RandomResizedCrop(224),
-            transforms.RandomHorizontalFlip(),
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
             transforms.ToTensor(),
             normalize,
         ]))
@@ -168,6 +194,8 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     if args.evaluate:
+        print("before train:")
+        model.cuda()
         validate(val_loader, model, criterion)
         return
 
@@ -217,6 +245,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
 
     # switch to train mode
     model.train()
+    model.cuda()
 
     end = time.time()
     for i, (input, target) in enumerate(train_loader):
@@ -232,10 +261,9 @@ def train(train_loader, model, criterion, optimizer, epoch):
         loss = criterion(output, target)
 
         # measure accuracy and record loss
-        prec1, prec5 = accuracy(output, target, topk=(1, 5))
+        prec1, prec5 = accuracy(output, target, topk=(1, 1))
         losses.update(loss.item(), input.size(0))
         top1.update(prec1[0], input.size(0))
-        top5.update(prec5[0], input.size(0))
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
@@ -259,10 +287,9 @@ def train(train_loader, model, criterion, optimizer, epoch):
                   'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                   'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
                   'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
                    epoch, i, len(train_loader), batch_time=batch_time,
-                   data_time=data_time, loss=losses, top1=top1, top5=top5))
+                   data_time=data_time, loss=losses, top1=top1))
 
 def adjust_learning_rate(optimizer, epoch):
     """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
@@ -274,7 +301,6 @@ def validate(val_loader, model, criterion):
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
-    top5 = AverageMeter()
 
     # switch to evaluate mode
     model.eval()
@@ -288,13 +314,13 @@ def validate(val_loader, model, criterion):
 
             # compute output
             output = model(input)
+            #print("output",output)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
-            prec1, prec5 = accuracy(output, target, topk=(1, 5))
+            prec1, prec5 = accuracy(output, target, topk=(1, 1))
             losses.update(loss.item(), input.size(0))
             top1.update(prec1[0], input.size(0))
-            top5.update(prec5[0], input.size(0))
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -304,13 +330,10 @@ def validate(val_loader, model, criterion):
                 print('Test: [{0}/{1}]\t'
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                       'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                      'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                       i, len(val_loader), batch_time=batch_time, loss=losses,
-                       top1=top1, top5=top5))
+                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
+                       i, len(val_loader), batch_time=batch_time, loss=losses,top1=top1))
 
-        print(' * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f}'
-              .format(top1=top1, top5=top5))
+        print(' * Prec@1 {top1.avg:.3f} '.format(top1=top1))
 
     return top1.avg
 
@@ -320,17 +343,26 @@ def save_checkpoint(state, is_best, checkpoint, filename='scratch.pth.tar'):
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
+    #view() means resize() -1 means 'it depends'
+    #print("target:", target)
     with torch.no_grad():
-        maxk = max(topk)
         batch_size = target.size(0)
+        #print("batch_size",batch_size)
+        maxk = max(topk) # = 5
+        _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
+        #print("pred:",pred) #is index 5col xrow
 
-        _, pred = output.topk(maxk, 1, True, True)
-        pred = pred.t()
-        correct = pred.eq(target.view(1, -1).expand_as(pred))
+        pred = pred.t() # a zhuanzhi transpose xcol 5row
+        #print("pred.t():",pred)
+        #print("size:",pred[0][0].type()) #5,12
+
+
+        correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
 
         res = []
-        for k in topk:
+        for k in topk: #loop twice 1&5 
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
+
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
 
