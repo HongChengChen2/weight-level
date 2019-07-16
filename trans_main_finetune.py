@@ -143,7 +143,10 @@ def main():
             #print("new_checkpoint:",new_checkpoint)
 
             for k, v in checkpoint.items():
-                if ('module' not in k) and ('classifier' not in k):
+                if 'classifier' in k :
+                    new_checkpoint[k]=v
+
+                elif 'module' not in k :
                     k = 'module.'+k
                     k = k.replace('module.features.','features.module.')
                     #print("new_k", k)
