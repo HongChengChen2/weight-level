@@ -153,13 +153,19 @@ def main():
         if os.path.isfile(args.resume):
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume)
-
             new_checkpoint = OrderedDict()
-            for k, v in checkpoint.items():
-                name = k.replace(".module", "") # removing ‘.moldule’ from key
-                new_checkpoint[name]=v
 
-            model_ref.load_state_dict(new_checkpoint['state_dict'],strict=False)
+            for k, v in checkpoint.items():
+                if 'classifier' in k :
+                    new_checkpoint[k]=v
+
+                elif 'module' not in k :
+                    k = 'module.'+k
+                    k = k.replace('module.features.','features.module.')
+                    #print("new_k", k)
+                    new_checkpoint[k]=v
+
+            model.load_state_dict(new_checkpoint)
 
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
@@ -177,8 +183,8 @@ def main():
     cudnn.benchmark = True
 
     # Data loading code
-    traindir = os.path.join(args.data, 'train')
-    valdir = os.path.join(args.data, 'test')
+    traindir = os.path.join(args.data, 'train/')
+    valdir = os.path.join(args.data, 'test/')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
