@@ -141,7 +141,7 @@ def main():
             '''
             #print("new_checkpoint:",new_checkpoint)
 
-            model.load_state_dict(new_checkpoint['state_dict'])
+            model.load_state_dict(checkpoint['state_dict'])
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
 
