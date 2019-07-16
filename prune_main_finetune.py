@@ -17,7 +17,6 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 import torchvision.models as models
 
-#only used data to compute accuracy, not in deciding which to prune
 
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
@@ -31,22 +30,22 @@ parser.add_argument('--arch', '-a', metavar='ARCH', default='resnet18',
                     help='model architecture: ' +
                         ' | '.join(model_names) +
                         ' (default: resnet18)')
-parser.add_argument('-j', '--workers', default=4, type=int, metavar='N',
+parser.add_argument('-j', '--workers', default=40, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
-parser.add_argument('--epochs', default=90, type=int, metavar='N',
+parser.add_argument('--epochs', default=10, type=int, metavar='N',
                     help='number of total epochs to run')
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
 parser.add_argument('-b', '--batch-size', default=128, type=int,
                     metavar='N', help='mini-batch size (default: 128)')
-parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
+parser.add_argument('--lr', '--learning-rate', default=0.001, type=float,
                     metavar='LR', help='initial learning rate')
 parser.add_argument('--momentum', default=0.9, type=float, metavar='M',
                     help='momentum')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     metavar='W', help='weight decay (default: 1e-4)')
-parser.add_argument('--print-freq', '-p', default=1, type=int,
-                    metavar='N', help='print frequency (default: 1)')
+parser.add_argument('--print-freq', '-p', default=10, type=int,
+                    metavar='N', help='print frequency (default: 10)')
 parser.add_argument('--resume', default='', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
@@ -88,7 +87,7 @@ def main():
                       'disable data parallelism.')
 
     if not os.path.exists(args.save):
-        os.mkdir(args.save)
+        os.makedirs(args.save)
 
     args.distributed = args.world_size > 1
 
@@ -104,13 +103,6 @@ def main():
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
 
-    if args.resume:
-        # Load checkpoint.
-        print('==> Resuming from checkpoint..')
-        assert os.path.isfile(args.resume), 'Error: no checkpoint directory found!'
-        checkpoint = torch.load(args.resume)
-        model.load_state_dict(checkpoint)
-
     if args.gpu is not None:
         model = model.cuda(args.gpu)
     elif args.distributed:
@@ -123,9 +115,47 @@ def main():
         else:
             model = torch.nn.DataParallel(model).cuda()
 
-    valdir = os.path.join(args.data, 'test/')
+    # define loss function (criterion) and optimizer
+    criterion = nn.CrossEntropyLoss().cuda(args.gpu)
+
+    optimizer = torch.optim.SGD(model.parameters(), args.lr,
+                                momentum=args.momentum,
+                                weight_decay=args.weight_decay)
+
+    # optionally resume from a checkpoint
+    if args.resume:
+        if os.path.isfile(args.resume):
+            print("=> loading checkpoint '{}'".format(args.resume))
+            checkpoint = torch.load(args.resume)
+            model.load_state_dict(checkpoint['state_dict'])
+        else:
+            print("=> no checkpoint found at '{}'".format(args.resume))
+
+    cudnn.benchmark = True
+
+    # Data loading code
+    traindir = os.path.join(args.data, 'train')
+    valdir = os.path.join(args.data, 'val')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
+
+    train_dataset = datasets.ImageFolder(
+        traindir,
+        transforms.Compose([
+            transforms.RandomResizedCrop(224),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ]))
+
+    if args.distributed:
+        train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
+    else:
+        train_sampler = None
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
+        num_workers=args.workers, pin_memory=True, sampler=train_sampler)
 
     val_loader = torch.utils.data.DataLoader(
         datasets.ImageFolder(valdir, transforms.Compose([
@@ -136,62 +166,111 @@ def main():
         ])),
         batch_size=args.batch_size, shuffle=False,
         num_workers=args.workers, pin_memory=True)
-    criterion = nn.CrossEntropyLoss().cuda(args.gpu)
 
-    test_acc0 = validate(val_loader, model, criterion)
-    #############################################################################################################################
+    if args.evaluate:
+        validate(val_loader, model, criterion)
+        return
+
+    for epoch in range(args.start_epoch, args.epochs):
+        if args.distributed:
+            train_sampler.set_epoch(epoch)
+        adjust_learning_rate(optimizer, epoch)
+
+        #####################################################################################################
+        num_parameters = get_conv_zero_param(model)
+        print('Zero parameters: {}'.format(num_parameters))
+        num_parameters = sum([param.nelement() for param in model.parameters()])
+        print('Parameters: {}'.format(num_parameters))
+        #####################################################################################################
+
+        # train for one epoch
+        train(train_loader, model, criterion, optimizer, epoch)
+
+        # evaluate on validation set
+        prec1 = validate(val_loader, model, criterion)
+
+        # remember best prec@1 and save checkpoint
+        is_best = prec1 > best_prec1
+        best_prec1 = max(prec1, best_prec1)
+        save_checkpoint({
+            'epoch': epoch + 1,
+            'arch': args.arch,
+            'state_dict': model.state_dict(),
+            'best_prec1': best_prec1,
+            'optimizer' : optimizer.state_dict(),
+        }, is_best,checkpoint=args.save)
+    return
+
+def get_conv_zero_param(model):
     total = 0
     for m in model.modules():
         if isinstance(m, nn.Conv2d):
-            total += m.weight.data.numel()
+            total += torch.sum(m.weight.data.eq(0))
+    return total
 
-    conv_weights = torch.zeros(total).cuda()
-    index = 0
-    for m in model.modules():
-        if isinstance(m, nn.Conv2d):
-            size = m.weight.data.numel()
-            conv_weights[index:(index+size)] = m.weight.data.view(-1).abs().clone()
-            index += size
+def train(train_loader, model, criterion, optimizer, epoch):
+    batch_time = AverageMeter()
+    data_time = AverageMeter()
+    losses = AverageMeter()
+    top1 = AverageMeter()
+    top5 = AverageMeter()
 
-    y, i = torch.sort(conv_weights) 
-    thre_index = int(total * args.percent)
-    thre = y[thre_index]
+    # switch to train mode
+    model.train()
 
-    pruned = 0
-    print('Pruning threshold: {}'.format(thre))
-    zero_flag = False
-    for k, m in enumerate(model.modules()):
-        if isinstance(m, nn.Conv2d):
-            weight_copy = m.weight.data.abs().clone()
-            mask = weight_copy.gt(thre).float().cuda()
-            pruned = pruned + mask.numel() - torch.sum(mask)
-            m.weight.data.mul_(mask)
-            if int(torch.sum(mask)) == 0:
-                zero_flag = True
-            print('layer index: {:d} \t total params: {:d} \t remaining params: {:d}'.
-                format(k, mask.numel(), int(torch.sum(mask))))
-    print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
-    ##############################################################################################################################
-    test_acc1 = validate(val_loader, model, criterion)
+    end = time.time()
+    for i, (input, target) in enumerate(train_loader):
+        # measure data loading time
+        data_time.update(time.time() - end)
 
-    save_checkpoint({
-            'epoch': 0,
-            'state_dict': model.state_dict(),
-            'acc': test_acc1,
-            'best_acc': 0.,
-        }, False, checkpoint=args.save)
+        if args.gpu is not None:
+            input = input.cuda(args.gpu, non_blocking=True)
+        target = target.cuda(args.gpu, non_blocking=True)
 
-    with open(os.path.join(args.save, 'prune.txt'), 'w') as f:
-        f.write('Before pruning: Test Acc:  %.2f\n' % (test_acc0))
-        f.write('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}\n'.format(total, pruned, pruned/total))
-        f.write('After Pruning: Test Acc:  %.2f\n' % (test_acc1))
+        # compute output
+        output = model(input)
+        loss = criterion(output, target)
 
-        if zero_flag:
-            f.write("There exists a layer with 0 parameters left.")
-    return
+        # measure accuracy and record loss
+        prec1, prec5 = accuracy(output, target, topk=(1, 5))
+        losses.update(loss.item(), input.size(0))
+        top1.update(prec1[0], input.size(0))
+        top5.update(prec5[0], input.size(0))
+
+        # compute gradient and do SGD step
+        optimizer.zero_grad()
+        loss.backward()
+
+        for k, m in enumerate(model.modules()):
+            # print(k, m)
+            if isinstance(m, nn.Conv2d):
+                weight_copy = m.weight.data.abs().clone()
+                mask = weight_copy.gt(0).float().cuda()
+                m.weight.grad.data.mul_(mask)
+
+        optimizer.step()
+
+        # measure elapsed time
+        batch_time.update(time.time() - end)
+        end = time.time()
+
+        if i % args.print_freq == 0:
+            print('Epoch: [{0}][{1}/{2}]\t'
+                  'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                  'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                  'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                  'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                  'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                   epoch, i, len(train_loader), batch_time=batch_time,
+                   data_time=data_time, loss=losses, top1=top1, top5=top5))
+
+def adjust_learning_rate(optimizer, epoch):
+    """Sets the learning rate to the initial LR decayed by 10 every 30 epochs"""
+    lr = args.lr * (0.1 ** (epoch // 30))
+    for param_group in optimizer.param_groups:
+        param_group['lr'] = lr
 
 def validate(val_loader, model, criterion):
-    # AverageMeter() : Computes and stores the average and current value
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
@@ -205,14 +284,10 @@ def validate(val_loader, model, criterion):
         for i, (input, target) in enumerate(val_loader):
             if args.gpu is not None:
                 input = input.cuda(args.gpu, non_blocking=True)
-            target = target.cuda(args.gpu, non_blocking=True) # 0*100 + 1*100 +2*100
-            #print("target:",target)
-            # compute output,out put is a tensor
+            target = target.cuda(args.gpu, non_blocking=True)
+
+            # compute output
             output = model(input)
-
-            #print("output:",output)
-            #print("[0][0] :",output[0][0].item())
-
             loss = criterion(output, target)
 
             # measure accuracy and record loss
@@ -239,44 +314,23 @@ def validate(val_loader, model, criterion):
 
     return top1.avg
 
-def save_checkpoint(state, is_best, checkpoint, filename='pruned.pth.tar'):
+def save_checkpoint(state, is_best, checkpoint, filename='scratch.pth.tar'):
     filepath = os.path.join(checkpoint, filename)
     torch.save(state, filepath)
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
-    #view() means resize() -1 means 'it depends'
     with torch.no_grad():
+        maxk = max(topk)
         batch_size = target.size(0)
-        #print("batch_size",batch_size)
-        maxk = max(topk) # = 5
-        _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
-        #print("pred:",pred) #is index 5col xrow
 
-        for x in range(0,pred.size()[0]):
-            for y in range(0,pred.size()[1]):
-                if pred[x][y] >=281 and pred[x][y]<=285 :
-                    pred[x][y] = 0
-                    break
-                elif pred[x][y] >=151 and pred[x][y]<=268 :
-                    pred[x][y] = 1 
-                    break               
-                elif pred[x][y] >=330 and pred[x][y]<=332 :
-                    pred[x][y] = 2
-                    break
-        #print("pred after:",pred)
-
-        pred = pred.t() # a zhuanzhi transpose xcol 5row
-        #print("pred.t():",pred)
-        #print("size:",pred[0][0].type()) #5,12
-
-
-        correct = pred.eq(target.view(1, -1).expand_as(pred)) #expend target to pred
+        _, pred = output.topk(maxk, 1, True, True)
+        pred = pred.t()
+        correct = pred.eq(target.view(1, -1).expand_as(pred))
 
         res = []
-        for k in topk: #loop twice 1&5 
+        for k in topk:
             correct_k = correct[:k].view(-1).float().sum(0, keepdim=True)
-
             res.append(correct_k.mul_(100.0 / batch_size))
         return res
 
