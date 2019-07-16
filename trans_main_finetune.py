@@ -314,7 +314,7 @@ def validate(val_loader, model, criterion):
 
             # compute output
             output = model(input)
-            print("output",output)
+            #print("output",output)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
@@ -344,7 +344,7 @@ def save_checkpoint(state, is_best, checkpoint, filename='scratch.pth.tar'):
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
     #view() means resize() -1 means 'it depends'
-    print("target:", target)
+    #print("target:", target)
     with torch.no_grad():
         batch_size = target.size(0)
         #print("batch_size",batch_size)
@@ -353,7 +353,7 @@ def accuracy(output, target, topk=(1,)):
         #print("pred:",pred) #is index 5col xrow
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
-        print("pred.t():",pred)
+        #print("pred.t():",pred)
         #print("size:",pred[0][0].type()) #5,12
 
 
