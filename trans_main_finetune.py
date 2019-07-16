@@ -133,11 +133,12 @@ def main():
             checkpoint = torch.load(args.resume)
             #print(checkpoint['state_dict'])
 
+            '''
             new_checkpoint = OrderedDict()
             for k, v in checkpoint.items():
                 name = k.replace(".module", "") # removing ‘.moldule’ from key
                 new_checkpoint[name]=v
-
+            '''
             #print("new_checkpoint:",new_checkpoint)
 
             model.load_state_dict(new_checkpoint['state_dict'])
