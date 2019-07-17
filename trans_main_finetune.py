@@ -101,11 +101,13 @@ def main():
     if args.pretrained:
         print("=> using pre-trained model '{}'".format(args.arch))
         model = models.__dict__[args.arch](pretrained=True)
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, 3) 
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
         num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 3) #only train the last layer
+        model.fc = nn.Linear(num_ftrs, 3) 
 
     if args.gpu is not None:
         model = model.cuda(args.gpu)
