@@ -108,8 +108,6 @@ def main():
     if args.pretrained:
         print("=> using pre-trained model '{}'".format(args.arch))
         model = models.__dict__[args.arch](pretrained=True)
-        num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 3) #only train the last layer
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
@@ -163,6 +161,10 @@ def main():
         param.requires_grad = False #only train the last layer:fc layer
         param.cuda(args.gpu)
 
+
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, 3) #only train the last layer
+    
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
     model.train(True)
