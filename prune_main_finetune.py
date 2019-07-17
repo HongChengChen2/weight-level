@@ -129,7 +129,7 @@ def main():
         if os.path.isfile(args.resume):
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume).get('state_dict')
-            print(checkpoint.keys())
+            #print(checkpoint.keys())
 
             new_checkpoint = OrderedDict()
 
@@ -152,8 +152,8 @@ def main():
 '''         
             model.load_state_dict(checkpoint)
 
-            num_ftrs = model.fc.in_features
-            model.fc = nn.Linear(num_ftrs, 3)
+            num_ftrs = model.module.fc.in_features
+            model.module.fc = nn.Linear(num_ftrs, 3)
 
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
