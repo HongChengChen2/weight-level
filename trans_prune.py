@@ -150,17 +150,18 @@ def main():
     train_dataset = datasets.ImageFolder(valdir_train, transform=data_transform)
     test_dataset = datasets.ImageFolder(valdir_test, transform=data_transform)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset , batch_size=args.batch_size, shuffle=False,
+    train_loader = torch.utils.data.DataLoader(train_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
-    test_loader = torch.utils.data.DataLoader(test_dataset , batch_size=args.batch_size, shuffle=False,
+    test_loader = torch.utils.data.DataLoader(test_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
 
+    '''
     for param in model.parameters(): #params have requires_grad=True by default
         param.requires_grad = False #only train the last layer:fc layer
         param.cuda(args.gpu)
-
+    '''
 
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, 3) #only train the last layer
