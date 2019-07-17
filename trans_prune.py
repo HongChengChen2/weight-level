@@ -157,11 +157,11 @@ def main():
 
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
 
-    '''
+    
     for param in model.parameters(): #params have requires_grad=True by default
         param.requires_grad = False #only train the last layer:fc layer
         param.cuda(args.gpu)
-    '''
+    
 
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, 3) #only train the last layer
