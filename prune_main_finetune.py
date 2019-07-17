@@ -152,8 +152,8 @@ def main():
 '''         
             model.load_state_dict(checkpoint)
 
-            num_ftrs = model.classifier[6].in_features
-            model.classifier[6] = nn.Linear(num_ftrs, 3)
+            num_ftrs = model.fc.in_features
+            model.fc = nn.Linear(num_ftrs, 3)
 
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
@@ -181,7 +181,7 @@ def main():
         train_sampler = None
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
+        train_dataset, batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True, sampler=train_sampler)
 
     val_loader = torch.utils.data.DataLoader(
@@ -191,7 +191,7 @@ def main():
             transforms.ToTensor(),
             normalize,
         ])),
-        batch_size=args.batch_size, shuffle=False,
+        batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
     if args.evaluate:
