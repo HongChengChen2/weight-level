@@ -104,8 +104,8 @@ def main():
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
-        num_ftrs = model.classifier[6].in_features
-        model.classifier[6] = nn.Linear(num_ftrs, 3)
+        num_ftrs = model.fc.in_features
+        model.fc = nn.Linear(num_ftrs, 3) #only train the last layer
 
     if args.gpu is not None:
         model = model.cuda(args.gpu)
@@ -142,6 +142,7 @@ def main():
             '''
             #print("new_checkpoint:",new_checkpoint)
 
+            '''
             for k, v in checkpoint.items():
                 if 'classifier' in k :
                     new_checkpoint[k]=v
@@ -151,8 +152,8 @@ def main():
                     k = k.replace('module.features.','features.module.')
                     #print("new_k", k)
                     new_checkpoint[k]=v
-
-            model.load_state_dict(new_checkpoint)
+            '''
+            model.load_state_dict(checkpoint)
 
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
@@ -180,7 +181,7 @@ def main():
         train_sampler = None
 
     train_loader = torch.utils.data.DataLoader(
-        train_dataset, batch_size=args.batch_size, shuffle=(train_sampler is None),
+        train_dataset, batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True, sampler=train_sampler)
 
     val_loader = torch.utils.data.DataLoader(
