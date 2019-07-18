@@ -198,6 +198,7 @@ def main():
     for m in model.modules():
         if isinstance(m, nn.Conv2d):
             total += m.weight.data.numel()
+            print(m.weight)
 
     conv_weights = torch.zeros(total).cuda()
     index = 0
