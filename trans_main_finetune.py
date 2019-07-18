@@ -231,7 +231,7 @@ def main():
         }, is_best,checkpoint=args.save)
 
         with open(os.path.join(args.save, 'weight.txt'), 'w') as f:
-            f.write(model.state_dict)
+            f.write(model.state_dict())
 
     return
 
