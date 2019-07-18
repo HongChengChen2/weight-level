@@ -229,6 +229,10 @@ def main():
             'best_prec1': best_prec1,
             'optimizer' : optimizer.state_dict(),
         }, is_best,checkpoint=args.save)
+
+        with open(os.path.join(args.save, 'weight.txt'), 'w') as f:
+        f.write(model.state_dict)
+
     return
 
 def get_conv_zero_param(model):
