@@ -133,7 +133,7 @@ def main():
         if os.path.isfile(args.resume):
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume).get('state_dict')
-            print(checkpoint.keys())
+            #print(checkpoint.keys())
 
             new_checkpoint = OrderedDict()
 
@@ -143,7 +143,7 @@ def main():
                 new_checkpoint[name]=v
             '''
             #print("new_checkpoint:",new_checkpoint)
-
+            '''
             for k, v in checkpoint.items():
                 if 'classifier' in k :
                     new_checkpoint[k]=v
@@ -153,8 +153,8 @@ def main():
                     #k = k.replace('module.features.','features.module.')
                     #print("new_k", k)
                     new_checkpoint[k]=v
-            
-            model.load_state_dict(new_checkpoint)
+            '''
+            model.load_state_dict(checkpoint)
 
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
