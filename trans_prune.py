@@ -134,7 +134,7 @@ def main():
 
 
     valdir_train = os.path.join(args.data, 'train/')
-    valdir_test = os.path.join(args.data, 'test/')
+    valdir_test = os.path.join(args.data, 'val/')
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -164,7 +164,7 @@ def main():
     
 
     num_ftrs = model.module.fc.in_features
-    model.module.fc = nn.Linear(num_ftrs, 3) #only train the last layer
+    model.module.fc = nn.Linear(num_ftrs, 2) #only train the last layer
     
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
