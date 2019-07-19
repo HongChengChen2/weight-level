@@ -101,13 +101,11 @@ def main():
     if args.pretrained:
         print("=> using pre-trained model '{}'".format(args.arch))
         model = models.__dict__[args.arch](pretrained=True)
-        num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 2) 
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
         num_ftrs = model.fc.in_features
-        model.fc = nn.Linear(num_ftrs, 2) 
+        model.fc = nn.Linear(num_ftrs, 2) #only train the last layer
 
     if args.gpu is not None:
         model = model.cuda(args.gpu)
@@ -143,7 +141,7 @@ def main():
                 new_checkpoint[name]=v
             '''
             #print("new_checkpoint:",new_checkpoint)
-            '''
+
             for k, v in checkpoint.items():
                 if 'classifier' in k :
                     new_checkpoint[k]=v
@@ -153,8 +151,8 @@ def main():
                     #k = k.replace('module.features.','features.module.')
                     #print("new_k", k)
                     new_checkpoint[k]=v
-            '''
-            model.load_state_dict(checkpoint)
+            
+            model.load_state_dict(new_checkpoint)
 
         else:
             print("=> no checkpoint found at '{}'".format(args.resume))
@@ -163,7 +161,7 @@ def main():
 
     # Data loading code
     traindir = os.path.join(args.data, 'train/')
-    valdir = os.path.join(args.data, 'val/')
+    valdir = os.path.join(args.data, 'test/')
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
 
@@ -229,10 +227,6 @@ def main():
             'best_prec1': best_prec1,
             'optimizer' : optimizer.state_dict(),
         }, is_best,checkpoint=args.save)
-
-        with open(os.path.join(args.save, 'weight.txt'), 'w') as f:
-            f.write(str(model.state_dict()))
-
     return
 
 def get_conv_zero_param(model):

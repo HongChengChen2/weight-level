@@ -134,7 +134,7 @@ def main():
 
 
     valdir_train = os.path.join(args.data, 'train/')
-    valdir_test = os.path.join(args.data, 'val/')
+    valdir_test = os.path.join(args.data, 'test/')
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -163,8 +163,8 @@ def main():
         param.cuda(args.gpu)
     
 
-    num_ftrs = model.module.fc.in_features
-    model.module.fc = nn.Linear(num_ftrs, 2) #only train the last layer
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, 2) #only train the last layer
     
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
@@ -198,7 +198,6 @@ def main():
     for m in model.modules():
         if isinstance(m, nn.Conv2d):
             total += m.weight.data.numel()
-            #print(m.weight)
 
     conv_weights = torch.zeros(total).cuda()
     index = 0
