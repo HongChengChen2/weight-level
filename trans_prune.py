@@ -244,8 +244,6 @@ def main():
             f.write("There exists a layer with 0 parameters left.")
 
     ''' a test
-    
-    
     model_new = models.__dict__[args.arch]()
     num_ftrs = model_new.classifier[6].in_features
     model_new.classifier[6] = nn.Linear(num_ftrs, 3)
