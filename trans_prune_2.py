@@ -199,7 +199,10 @@ def main():
     for m in model.modules():
         if isinstance(m, nn.Conv2d):
             total += m.weight.data.numel()
-
+    
+    zero_param = get_conv_zero_param(model)
+    total = total - zero_param
+    
     conv_weights = torch.zeros(total).cuda()
     index = 0
     for m in model.modules():
@@ -318,6 +321,13 @@ def save_checkpoint(state, is_best, checkpoint, filename='pruned2c.pth.tar'):
     #print("state_dict", state.get('state_dict').keys())
     filepath = os.path.join(checkpoint, filename)
     torch.save(state, filepath)
+
+def get_conv_zero_param(model):
+    total = 0
+    for m in model.modules():
+        if isinstance(m, nn.Conv2d):
+            total += torch.sum(m.weight.data.eq(0))
+    return total
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
