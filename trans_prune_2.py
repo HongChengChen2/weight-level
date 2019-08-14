@@ -215,7 +215,7 @@ def main():
             index += size
 
     y, i = torch.sort(conv_weights, descending=True) #default true:from small to big
-    thre_index = int(total_noZero * args.percent )
+    thre_index = int(total_noZero.item() * (1-args.percent) )
     print("thre_index", thre_index) 
     print("total_noZero", total_noZero.item()) 
     print("total_noZero*", total_noZero.item() * args.percent) 
