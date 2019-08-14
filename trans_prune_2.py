@@ -201,8 +201,8 @@ def main():
             total += m.weight.data.numel()
     
     zero_param = get_conv_zero_param(model)
-    total = total - zero_param
-    
+    total_noZero = total - zero_param
+
     conv_weights = torch.zeros(total).cuda()
     index = 0
     for m in model.modules():
@@ -211,9 +211,9 @@ def main():
             conv_weights[index:(index+size)] = m.weight.data.view(-1).abs().clone()
             index += size
 
-    y, i = torch.sort(conv_weights) 
-    thre_index = int(total * args.percent)
-    thre = y[thre_index]
+    y, i = torch.sort(conv_weights, False) #default true:from small to big
+    thre_index = int(total_noZero * (1-args.percent) )
+    thre = y[thre_index] 
 
     pruned = 0
     print('Pruning threshold: {}'.format(thre))
@@ -228,6 +228,7 @@ def main():
                 zero_flag = True
             print('layer index: {:d} \t total params: {:d} \t remaining params: {:d}'.
                 format(k, mask.numel(), int(torch.sum(mask))))
+
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
     ##############################################################################################################################
     test_acc1 = validate(test_loader, model, criterion)
