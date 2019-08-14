@@ -116,7 +116,7 @@ def main():
 
     if args.resume:
         # Load checkpoint.
-         if os.path.isfile(args.resume):
+        if os.path.isfile(args.resume):
             print("=> loading checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume).get('state_dict')
             #print(checkpoint.keys())  
