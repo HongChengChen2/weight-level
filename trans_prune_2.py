@@ -220,6 +220,8 @@ def main():
     zero_flag = False
     for k, m in enumerate(model.modules()):
         if isinstance(m, nn.Conv2d):
+            zero_param_k = torch.sum(m.weight.data.eq(0))
+
             weight_copy = m.weight.data.abs().clone()
             mask = weight_copy.gt(thre).float().cuda()
             pruned = pruned + mask.numel() - torch.sum(mask)
@@ -227,7 +229,7 @@ def main():
             if int(torch.sum(mask)) == 0:
                 zero_flag = True
             print('layer index: {:d} \t total params: {:d} \t remaining params: {:d}'.
-                format(k, mask.numel(), int(torch.sum(mask))))
+                format(k, mask.numel()-zero_param_k, int(torch.sum(mask))))
 
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
     ##############################################################################################################################
