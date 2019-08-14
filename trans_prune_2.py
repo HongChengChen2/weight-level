@@ -201,7 +201,10 @@ def main():
             total += m.weight.data.numel()
     
     zero_param = get_conv_zero_param(model)
+    print("zero_param",zero_param)
     total_noZero = total - zero_param
+    print("total_noZero",total_noZero)
+
 
     conv_weights = torch.zeros(total).cuda()
     index = 0
