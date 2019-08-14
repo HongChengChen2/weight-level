@@ -218,7 +218,7 @@ def main():
     thre_index = int(total_noZero * args.percent )
     print("thre_index", thre_index) 
     print("percent", args.percent) 
-    print("total_noZero", total_noZero) 
+    print("total_noZero", total_noZero * args.percent) 
     thre = y[thre_index] 
 
     pruned = 0
