@@ -211,7 +211,7 @@ def main():
             conv_weights[index:(index+size)] = m.weight.data.view(-1).abs().clone()
             index += size
 
-    y, i = torch.sort(conv_weights, descending=False) #default true:from small to big
+    y, i = torch.sort(conv_weights, descending=True) #default true:from small to big
     thre_index = int(total_noZero * (1-args.percent) )
     thre = y[thre_index] 
 
