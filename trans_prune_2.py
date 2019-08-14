@@ -114,18 +114,6 @@ def main():
         num_ftrs = model.classifier[6].in_features
         model.classifier[6] = nn.Linear(num_ftrs, 2)#only train the last layer
 
-    if args.resume:
-        # Load checkpoint.
-        if os.path.isfile(args.resume):
-            print("=> loading checkpoint '{}'".format(args.resume))
-            checkpoint = torch.load(args.resume).get('state_dict')
-            #print(checkpoint.keys())  
-            model.load_state_dict(checkpoint)
-
-        else:
-            print("=> no checkpoint found at '{}'".format(args.resume))
-
-
     if args.gpu is not None:
         model = model.cuda(args.gpu) #this way
     elif args.distributed:
@@ -139,6 +127,16 @@ def main():
         else:
             model = torch.nn.DataParallel(model).cuda()
 
+    if args.resume:
+        # Load checkpoint.
+        if os.path.isfile(args.resume):
+            print("=> loading checkpoint '{}'".format(args.resume))
+            checkpoint = torch.load(args.resume).get('state_dict')
+            #print(checkpoint.keys())  
+            model.load_state_dict(checkpoint)
+
+        else:
+            print("=> no checkpoint found at '{}'".format(args.resume))
 
     valdir_train = os.path.join(args.data, 'train/')
     valdir_test = os.path.join(args.data, 'val/')
