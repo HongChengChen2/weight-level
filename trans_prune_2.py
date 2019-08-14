@@ -213,6 +213,7 @@ def main():
 
     y, i = torch.sort(conv_weights, descending=True) #default true:from small to big
     thre_index = int(total_noZero * (1-args.percent) )
+    print("thre_index", thre_index)
     thre = y[thre_index] 
 
     pruned = 0
