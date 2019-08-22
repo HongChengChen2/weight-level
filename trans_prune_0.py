@@ -198,18 +198,10 @@ def main():
     save_checkpoint({
             'epoch': 0,
             'state_dict': model.state_dict(),
-            'acc': test_acc1,
+            'acc': test_acc0,
             'best_acc': 0.,
         }, False, checkpoint=args.save)
-
-    with open(os.path.join(args.save, 'prune.txt'), 'w') as f:
-        f.write('Before pruning: Test Acc:  %.2f\n' % (test_acc0))
-        f.write('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}\n'.format(total, pruned, pruned/total))
-        f.write('After Pruning: Test Acc:  %.2f\n' % (test_acc1))
-
-        if zero_flag:
-            f.write("There exists a layer with 0 parameters left.")
-
+    
     ''' a test
     model_new = models.__dict__[args.arch]()
     num_ftrs = model_new.classifier[6].in_features
