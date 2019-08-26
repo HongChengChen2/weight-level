@@ -225,10 +225,10 @@ def accuracy(output, target, topk=(1,)):
         for x in range(0,pred.size()[0]):
             for y in range(0,pred.size()[1]):
                 if pred[x][y] >=281 and pred[x][y]<=285 : #cats
-                    #pred[x][y] = 0
+                    pred[x][y] = 0
                     break
                 elif pred[x][y] >=151 and pred[x][y]<=268 : #dogs
-                    pred[x][y] = 0
+                    #pred[x][y] = 0
                     break               
                 elif pred[x][y] >=330 and pred[x][y]<=332 : #rabbits
                     pred[x][y] = 1
