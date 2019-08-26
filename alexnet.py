@@ -231,7 +231,7 @@ def accuracy(output, target, topk=(1,)):
                     pred[x][y] = 1
                     break               
                 elif pred[x][y] >=330 and pred[x][y]<=332 : #rabbits
-                    #pred[x][y] = 1
+                    pred[x][y] = 2
                     break
         #print("pred after:",pred)
 
