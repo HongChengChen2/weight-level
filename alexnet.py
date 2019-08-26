@@ -156,8 +156,8 @@ def main():
         param.cuda(args.gpu)
     
 
-    print("architecture of alexnet:")
-    print(model)
+    #print("architecture of alexnet:")
+    #print(model)
 
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
@@ -186,7 +186,7 @@ def validate(val_loader, model, criterion):
             # compute output,out put is a tensor
             output = model(input)
 
-            #print("output:",output)
+            print("output:",output)
             #print("[0][0] :",output[0][0].item())
 
             loss = criterion(output, target)
@@ -220,7 +220,7 @@ def accuracy(output, target, topk=(1,)):
         #print("batch_size",batch_size)
         maxk = max(topk) # = 5
         _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
-        #print("pred:",pred) #is index 5col xrow
+        print("pred:",pred) #is index 5col xrow
 
         for x in range(0,pred.size()[0]):
             for y in range(0,pred.size()[1]):
@@ -233,7 +233,7 @@ def accuracy(output, target, topk=(1,)):
                 elif pred[x][y] >=330 and pred[x][y]<=332 : #rabbits
                     pred[x][y] = 1
                     break
-        #print("pred after:",pred)
+        print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
         #print("pred.t():",pred)
