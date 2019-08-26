@@ -131,7 +131,7 @@ def main():
             model = torch.nn.DataParallel(model).cuda()
 
 
-    valdir_test = os.path.join(args.data, 'val/')
+    valdir_test = os.path.join(args.data, 'test/')
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -186,7 +186,7 @@ def validate(val_loader, model, criterion):
             # compute output,out put is a tensor
             output = model(input)
 
-            print("output:",output)
+            #print("output:",output)
             #print("[0][0] :",output[0][0].item())
 
             loss = criterion(output, target)
@@ -220,12 +220,12 @@ def accuracy(output, target, topk=(1,)):
         #print("batch_size",batch_size)
         maxk = max(topk) # = 5
         _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
-        print("pred:",pred) #is index 5col xrow
+        #print("pred:",pred) #is index 5col xrow
 
         for x in range(0,pred.size()[0]):
             for y in range(0,pred.size()[1]):
                 if pred[x][y] >=281 and pred[x][y]<=285 : #cats
-                    pred[x][y] = 2
+                    #pred[x][y] = 0
                     break
                 elif pred[x][y] >=151 and pred[x][y]<=268 : #dogs
                     pred[x][y] = 0
@@ -233,7 +233,7 @@ def accuracy(output, target, topk=(1,)):
                 elif pred[x][y] >=330 and pred[x][y]<=332 : #rabbits
                     pred[x][y] = 1
                     break
-        print("pred after:",pred)
+        #print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
         #print("pred.t():",pred)
