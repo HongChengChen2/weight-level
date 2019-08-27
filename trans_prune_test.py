@@ -215,7 +215,8 @@ def main():
     print('Pruning threshold: {}'.format(thre))
     zero_flag = False
     for k, m in enumerate(model.modules()):            
-        print(m)
+        print("k:",k)
+        print("m:",m)
         if isinstance(m, nn.Conv2d):
             weight_copy = m.weight.data.abs().clone()
             mask = weight_copy.gt(thre).float().cuda()
