@@ -214,7 +214,8 @@ def main():
     pruned = 0
     print('Pruning threshold: {}'.format(thre))
     zero_flag = False
-    for k, m in enumerate(model.modules()):
+    for k, m in enumerate(model.modules()):            
+        print(m)
         if isinstance(m, nn.Conv2d):
             weight_copy = m.weight.data.abs().clone()
             mask = weight_copy.gt(thre).float().cuda()
@@ -224,7 +225,6 @@ def main():
                 zero_flag = True
             print('layer index: {:d} \t total params: {:d} \t remaining params: {:d}'.
                 format(k, mask.numel(), int(torch.sum(mask))))
-            print(m)
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
     ##############################################################################################################################
     test_acc1 = validate(test_loader, model, criterion)
