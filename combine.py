@@ -228,9 +228,9 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             row = out_size[0] 
             col = out_size[1] 
             zero_tensor = torch.FloatTensor(row,col).zero_().cuda()
-            output_1 = torch.cat([output_1,zero_tensor],dim=0)
+            output_1 = torch.cat([output_1,zero_tensor],dim=1)
             print("output_1:",output_1)
-            output_3 = torch.cat([zero_tensor, output_3],dim=0)
+            output_3 = torch.cat([zero_tensor, output_3],dim=1)
             print("output_3:",output_3)
 
             #print("output:",output)
