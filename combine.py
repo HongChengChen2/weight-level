@@ -218,13 +218,13 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             #print("target:",target)
             # compute output,out put is a tensor
             output_1 = model_1(input)
-            output_1= nn.softmax(output_1, dim=1) # calculate as row
+            output_1= F.softmax(output_1, dim=1) # calculate as row
             print("size: ",sizeof(output_1)) #torch.float32
             output_1 = torch.cat([output_1,zero_tensor],dim=0)
             output_2 = model_2(input)
-            output_2= nn.softmax(output_2, dim=1)
+            output_2= F.softmax(output_2, dim=1)
             output_3 = model_3(input)
-            output_3= nn.softmax(output_3, dim=1)
+            output_3= F.softmax(output_3, dim=1)
 
             #print("output:",output)
             #print("[0][0] :",output[0][0].item())
