@@ -224,8 +224,9 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             row = out_size[0] #torch.float32
             col = out_size[1] #torch.float32
 
-            zero_tensor = torch.FloatTensor(row,col)
+            zero_tensor = torch.FloatTensor(row,col).zero_().cuda()
             print("size: ", zero_tensor.size()) #torch.float32
+
             output_1 = torch.cat([output_1,zero_tensor],dim=0)
             output_2 = model_2(input)
             output_2= F.softmax(output_2, dim=1)
