@@ -202,7 +202,7 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
-    f_softmax = nn.Softmax()
+    #zero_tensor = torch.FloatTensor(n, m)
 
     # switch to evaluate mode
     model_1.eval()
@@ -218,17 +218,18 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             #print("target:",target)
             # compute output,out put is a tensor
             output_1 = model_1(input)
-            output_1= f_softmax(output_1)
-            print("type: ",output_1.dtype)
+            output_1= nn.Softmax(output_1, dim=1) # calculate as row
+            print("size: ",sizeof(output_1)) #torch.float32
+            output_1 = torch.cat([output_1,zero_tensor],dim=0)
             output_2 = model_2(input)
-            output_2= f_softmax(output_2)
+            output_2= nn.Softmax(output_2, dim=1)
             output_3 = model_3(input)
-            output_3= f_softmax(output_3)
+            output_3= nn.Softmax(output_3, dim=1)
 
             #print("output:",output)
             #print("[0][0] :",output[0][0].item())
 
-            output = torch.add( output_1 , output_2 , output_3)
+            output = output_1 + output_2 + output_3
             loss = criterion(output, target)
 
             # measure accuracy and record loss
