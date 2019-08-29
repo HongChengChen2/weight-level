@@ -232,7 +232,7 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             #print("output_1:",output_1)
             output_3 = torch.cat([zero_tensor, output_3],dim=1)
             #print("output_3:",output_3)
-            o2_1 , o2_2 = output_2.chuck(2,dim=1)
+            o2_1 , o2_2 = output_2.chunk(2,dim=1)
             output_2 = torch.cat([o2_1,zero_tensor,o2_2],dim=1)
             print(output_2)
 
