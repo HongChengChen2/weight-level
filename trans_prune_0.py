@@ -247,7 +247,7 @@ def validate(val_loader, model, criterion):
             # compute output,out put is a tensor
             output = model(input)
 
-            print("output:",output)
+            #print("output:",output)
             #print("[0][0] :",output[0][0].item())
 
             loss = criterion(output, target)

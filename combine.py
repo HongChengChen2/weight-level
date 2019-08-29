@@ -67,11 +67,8 @@ parser.add_argument('--dist-url', default='tcp://224.66.41.62:23456', type=str,
                     help='url used to set up distributed training')
 parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
-parser.add_argument('--seed', default=None, type=int,
-                    help='seed for initializing training. ')
 parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
-parser.add_argument('--percent',default=0.1,type=float)
 parser.add_argument('--save',default='',type=str)
 
 best_prec1 = 0
@@ -80,16 +77,6 @@ best_prec1 = 0
 def main():
     global args, best_prec1
     args = parser.parse_args()
-
-    if args.seed is not None:
-        random.seed(args.seed)
-        torch.manual_seed(args.seed)
-        cudnn.deterministic = True
-        warnings.warn('You have chosen to seed training. '
-                      'This will turn on the CUDNN deterministic setting, '
-                      'which can slow down your training considerably! '
-                      'You may see unexpected behavior when restarting '
-                      'from checkpoints.')
 
     if args.gpu is not None:
         warnings.warn('You have chosen a specific GPU. This will completely '
@@ -110,31 +97,60 @@ def main():
         model = models.__dict__[args.arch](pretrained=True)
     else:
         print("=> creating model '{}'".format(args.arch))
-        model = models.__dict__[args.arch]()
+        model_1 = models.__dict__[args.arch]()
+        num_ftrs = model_1.classifier[6].in_features
+        model_1.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
+        
+        model_2 = models.__dict__[args.arch]()
+        num_ftrs = model_2.classifier[6].in_features
+        model_2.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
+    
+        model_3 = models.__dict__[args.arch]()
+        num_ftrs = model_3.classifier[6].in_features
+        model_3.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
+    
 
     if args.resume:
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
-        assert os.path.isfile(args.resume), 'Error: no checkpoint directory found!'
-        checkpoint = torch.load(args.resume)
-        model.load_state_dict(checkpoint)
+        re_path1 = os.path.join(args.resume, 'data1/scratch3c.pth.tar')
+        re_path2 = os.path.join(args.resume, 'data2/scratch3c.pth.tar')
+        re_path3 = os.path.join(args.resume, 'data3/scratch3c.pth.tar')
+        assert os.path.isfile(re_path1), 'Error: no checkpoint1 directory found!'
+        assert os.path.isfile(re_path2), 'Error: no checkpoint2 directory found!'
+        assert os.path.isfile(re_path3), 'Error: no checkpoint3 directory found!'
+        checkpoint1 = torch.load(re_path1)
+        checkpoint2 = torch.load(re_path2)
+        checkpoint3 = torch.load(re_path3)
+        model_1.load_state_dict(checkpoint1) #cat dog
+        model_2.load_state_dict(checkpoint2) #cat rabbit
+        model_3.load_state_dict(checkpoint3) #dog rabbit
 
     if args.gpu is not None:
-        model = model.cuda(args.gpu) #this way
+        model_1 = model_1.cuda(args.gpu) #this way
+        model_2 = model_2.cuda(args.gpu) #this way
+        model_3 = model_3.cuda(args.gpu) #this way
     elif args.distributed:
-        model.cuda()
-        model = torch.nn.parallel.DistributedDataParallel(model)
+        model_1.cuda()
+        model_2.cuda()
+        model_3.cuda()
+        model_1 = torch.nn.parallel.DistributedDataParallel(model_1)
+        model_2 = torch.nn.parallel.DistributedDataParallel(model_2)
+        model_3 = torch.nn.parallel.DistributedDataParallel(model_3)
     else:
         if args.arch.startswith('alexnet') or args.arch.startswith('vgg'):
-            model.features = torch.nn.DataParallel(model.features)
-            model.cuda()
+            model_1.features = torch.nn.DataParallel(model_1.features)
+            model_2.features = torch.nn.DataParallel(model_2.features)
+            model_3.features = torch.nn.DataParallel(model_3.features)
+            model_1.cuda()
+            model_2.cuda()
+            model_3.cuda()
 
         else:
             model = torch.nn.DataParallel(model).cuda()
 
 
-    valdir_train = os.path.join(args.data, 'train/')
-    valdir_test = os.path.join(args.data, 'val/')
+    valdir_test = os.path.join(args.data, 'test/')
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -147,103 +163,17 @@ def main():
             normalize,
         ])
 
-    train_dataset = datasets.ImageFolder(valdir_train, transform=data_transform)
     test_dataset = datasets.ImageFolder(valdir_test, transform=data_transform)
 
-    train_loader = torch.utils.data.DataLoader(train_dataset , batch_size=args.batch_size, shuffle=True,
-        num_workers=args.workers, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
-    criterion = nn.CrossEntropyLoss().cuda(args.gpu)
+    criterion = nn.CrossEntropyLoss().cuda(args.gpu)    
 
-    
-    for param in model.parameters(): #params have requires_grad=True by default
-        param.requires_grad = False #only train the last layer:fc layer
-        param.cuda(args.gpu)
-    
-
-    num_ftrs = model.classifier[6].in_features
-    model.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
-    
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
-    model.train(True)
-    model.cuda(args.gpu)
-    for epoch in range(args.start_epoch , args.epochs):
-        print("===epoc===%d"%epoch)
-
-        for i,(data,y) in enumerate(train_loader):
-            data=Variable(data,requires_grad=True)
-            #y=Variable(y,requires_grad=True)
-
-            if args.gpu is not None:
-                data = data.cuda(args.gpu, non_blocking=True)
-            y = y.cuda(args.gpu, non_blocking=True)
-
-            out = model(data)
-
-            #print(out)
-            loss=criterion(out,y)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            print('loss:',loss,loss.item())
-
-    model.train(False)
-
-    test_acc0 = validate(test_loader, model, criterion)
-    #############################################################################################################################
-    total = 0
-    for m in model.modules():
-        if isinstance(m, nn.Conv2d):
-            total += m.weight.data.numel()
-
-    conv_weights = torch.zeros(total).cuda()
-    index = 0
-    for m in model.modules():
-        if isinstance(m, nn.Conv2d):
-            size = m.weight.data.numel()
-            conv_weights[index:(index+size)] = m.weight.data.view(-1).abs().clone()
-            index += size
-
-    y, i = torch.sort(conv_weights) 
-    thre_index = int(total * args.percent)
-    thre = y[thre_index]
-
-    pruned = 0
-    print('Pruning threshold: {}'.format(thre))
-    zero_flag = False
-    for k, m in enumerate(model.modules()):            
-        print("k:",k)
-        print("m:",m)
-        if isinstance(m, nn.Conv2d):
-            weight_copy = m.weight.data.abs().clone()
-            mask = weight_copy.gt(thre).float().cuda()
-            pruned = pruned + mask.numel() - torch.sum(mask)
-            m.weight.data.mul_(mask)
-            if int(torch.sum(mask)) == 0:
-                zero_flag = True
-            print('layer index: {:d} \t total params: {:d} \t remaining params: {:d}'.
-                format(k, mask.numel(), int(torch.sum(mask))))
-    print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
-    ##############################################################################################################################
-    test_acc1 = validate(test_loader, model, criterion)
-
-    save_checkpoint({
-            'epoch': 0,
-            'state_dict': model.state_dict(),
-            'acc': test_acc1,
-            'best_acc': 0.,
-        }, False, checkpoint=args.save)
-
-    with open(os.path.join(args.save, 'prune.txt'), 'w') as f:
-        f.write('Before pruning: Test Acc:  %.2f\n' % (test_acc0))
-        f.write('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}\n'.format(total, pruned, pruned/total))
-        f.write('After Pruning: Test Acc:  %.2f\n' % (test_acc1))
-
-        if zero_flag:
-            f.write("There exists a layer with 0 parameters left.")
+    test_acc = validate(test_loader, model_1, model_2, model_3, criterion)
+   
 
     ''' a test
     model_new = models.__dict__[args.arch]()
@@ -269,12 +199,12 @@ def main():
     
     return
 
-def validate(val_loader, model, criterion):
+def validate(val_loader, model_1, model_2, model_3, criterion):
     # AverageMeter() : Computes and stores the average and current value
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
-    top5 = AverageMeter()
+    f_softmax = nn.Softmax()
 
     # switch to evaluate mode
     model.eval()
@@ -287,11 +217,18 @@ def validate(val_loader, model, criterion):
             target = target.cuda(args.gpu, non_blocking=True) # 0*100 + 1*100 +2*100
             #print("target:",target)
             # compute output,out put is a tensor
-            output = model(input)
+            output_1 = model_1(input)
+            output_1= f_softmax(output_1)
+            print("type: ",output_1.dtype)
+            output_2 = model_2(input)
+            output_2= f_softmax(output_2)
+            output_3 = model_3(input)
+            output_3= f_softmax(output_3)
 
             #print("output:",output)
             #print("[0][0] :",output[0][0].item())
 
+            output = torch.add( output_1 , output_2 , output_3)
             loss = criterion(output, target)
 
             # measure accuracy and record loss
@@ -314,11 +251,6 @@ def validate(val_loader, model, criterion):
         print(' * Prec@1 {top1.avg:.3f}'.format(top1=top1))
 
     return top1.avg
-
-def save_checkpoint(state, is_best, checkpoint, filename='test.pth.tar'):
-    #print("state_dict", state.get('state_dict').keys())
-    filepath = os.path.join(checkpoint, filename)
-    torch.save(state, filepath)
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
