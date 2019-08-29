@@ -119,9 +119,9 @@ def main():
         assert os.path.isfile(re_path1), 'Error: no checkpoint1 directory found!'
         assert os.path.isfile(re_path2), 'Error: no checkpoint2 directory found!'
         assert os.path.isfile(re_path3), 'Error: no checkpoint3 directory found!'
-        checkpoint1 = torch.load(re_path1)
-        checkpoint2 = torch.load(re_path2)
-        checkpoint3 = torch.load(re_path3)
+        checkpoint1 = torch.load(re_path1).get('state_dict')
+        checkpoint2 = torch.load(re_path2).get('state_dict')
+        checkpoint3 = torch.load(re_path3).get('state_dict')
         model_1.load_state_dict(checkpoint1) #cat dog
         model_2.load_state_dict(checkpoint2) #cat rabbit
         model_3.load_state_dict(checkpoint3) #dog rabbit
