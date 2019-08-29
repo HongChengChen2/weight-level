@@ -110,21 +110,7 @@ def main():
         model_3.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
     
 
-    if args.resume:
-        # Load checkpoint.
-        print('==> Resuming from checkpoint..')
-        re_path1 = os.path.join(args.resume, 'data1/scratch3c.pth.tar')
-        re_path2 = os.path.join(args.resume, 'data2/scratch3c.pth.tar')
-        re_path3 = os.path.join(args.resume, 'data3/scratch3c.pth.tar')
-        assert os.path.isfile(re_path1), 'Error: no checkpoint1 directory found!'
-        assert os.path.isfile(re_path2), 'Error: no checkpoint2 directory found!'
-        assert os.path.isfile(re_path3), 'Error: no checkpoint3 directory found!'
-        checkpoint1 = torch.load(re_path1).get('state_dict')
-        checkpoint2 = torch.load(re_path2).get('state_dict')
-        checkpoint3 = torch.load(re_path3).get('state_dict')
-        model_1.load_state_dict(checkpoint1) #cat dog
-        model_2.load_state_dict(checkpoint2) #cat rabbit
-        model_3.load_state_dict(checkpoint3) #dog rabbit
+    
 
     if args.gpu is not None:
         model_1 = model_1.cuda(args.gpu) #this way
@@ -148,7 +134,22 @@ def main():
 
         else:
             model = torch.nn.DataParallel(model).cuda()
-
+    
+    if args.resume:
+        # Load checkpoint.
+        print('==> Resuming from checkpoint..')
+        re_path1 = os.path.join(args.resume, 'data1/scratch3c.pth.tar')
+        re_path2 = os.path.join(args.resume, 'data2/scratch3c.pth.tar')
+        re_path3 = os.path.join(args.resume, 'data3/scratch3c.pth.tar')
+        assert os.path.isfile(re_path1), 'Error: no checkpoint1 directory found!'
+        assert os.path.isfile(re_path2), 'Error: no checkpoint2 directory found!'
+        assert os.path.isfile(re_path3), 'Error: no checkpoint3 directory found!'
+        checkpoint1 = torch.load(re_path1).get('state_dict')
+        checkpoint2 = torch.load(re_path2).get('state_dict')
+        checkpoint3 = torch.load(re_path3).get('state_dict')
+        model_1.load_state_dict(checkpoint1) #cat dog
+        model_2.load_state_dict(checkpoint2) #cat rabbit
+        model_3.load_state_dict(checkpoint3) #dog rabbit
 
     valdir_test = os.path.join(args.data, 'test/')
 
