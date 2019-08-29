@@ -219,19 +219,19 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             # compute output,out put is a tensor
             output_1 = model_1(input)
             output_1= F.softmax(output_1, dim=1) # calculate as row
-            print("size: ", output_1.size()) #torch.float32
-            out_size = output_1.size()
-            row = out_size[0] #torch.float32
-            col = out_size[1] #torch.float32
-
-            zero_tensor = torch.FloatTensor(row,col).zero_().cuda()
-            print("size: ", zero_tensor.size()) #torch.float32
-
-            output_1 = torch.cat([output_1,zero_tensor],dim=0)
             output_2 = model_2(input)
             output_2= F.softmax(output_2, dim=1)
             output_3 = model_3(input)
             output_3= F.softmax(output_3, dim=1)
+
+            out_size = output_1.size()
+            row = out_size[0] 
+            col = out_size[1] 
+            zero_tensor = torch.FloatTensor(row,col).zero_().cuda()
+            output_1 = torch.cat([output_1,zero_tensor],dim=0)
+            print("output_1:",output_1)
+            output_3 = torch.cat([zero_tensor, output_3],dim=0)
+            print("output_3:",output_3)
 
             #print("output:",output)
             #print("[0][0] :",output[0][0].item())
