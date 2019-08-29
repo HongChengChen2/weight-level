@@ -229,18 +229,17 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             row = out_size[0] 
             zero_tensor = torch.FloatTensor(row,1).zero_().cuda()
             output_1 = torch.cat([output_1,zero_tensor],dim=1)
-            #print("output_1:",output_1)
             output_3 = torch.cat([zero_tensor, output_3],dim=1)
-            #print("output_3:",output_3)
             o2_1 , o2_2 = output_2.chunk(2,dim=1)
             output_2 = torch.cat([o2_1,zero_tensor,o2_2],dim=1)
             #print(output_2)
 
-            #print("[0][0] :",output[0][0].item())
-
             output = output_1 + output_2 + output_3
+            print("output_1:",output_1)
+            print("output_2:",output_2)
+            print("output_3:",output_3)
             print("output:",output)
-            
+
             loss = criterion(output, target)
 
             # measure accuracy and record loss
