@@ -170,9 +170,6 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)    
-
-    optimizer = optim.Adam(model.parameters(),lr=0.001)
-
     test_acc = validate(test_loader, model_1, model_2, model_3, criterion)
    
 
