@@ -290,7 +290,7 @@ def accuracy(output, target, topk=(1,)):
         #print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
-        #print("pred.t():",pred)
+        print("pred.t():",pred)
         #print("size:",pred[0][0].type()) #5,12
 
 
