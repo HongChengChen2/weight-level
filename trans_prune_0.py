@@ -194,14 +194,15 @@ def main():
 
     test_acc0 = validate(test_loader, model, criterion)
 
-
+    '''
     save_checkpoint({
             'epoch': 0,
             'state_dict': model.state_dict(),
             'acc': test_acc0,
             'best_acc': 0.,
         }, False, checkpoint=args.save)
-    
+    '''
+
     ''' a test
     model_new = models.__dict__[args.arch]()
     num_ftrs = model_new.classifier[6].in_features
@@ -246,7 +247,7 @@ def validate(val_loader, model, criterion):
             # compute output,out put is a tensor
             output = model(input)
 
-            #print("output:",output)
+            print("output:",output)
             #print("[0][0] :",output[0][0].item())
 
             loss = criterion(output, target)
