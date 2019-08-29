@@ -219,7 +219,9 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             # compute output,out put is a tensor
             output_1 = model_1(input)
             output_1= F.softmax(output_1, dim=1) # calculate as row
-            print("size: ",sizeof(output_1)) #torch.float32
+            print("size: ", output_1.size()) #torch.float32
+            print("size type : ", output_1.size().type()) #torch.float32
+
             output_1 = torch.cat([output_1,zero_tensor],dim=0)
             output_2 = model_2(input)
             output_2= F.softmax(output_2, dim=1)
