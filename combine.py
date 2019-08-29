@@ -205,7 +205,9 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
     f_softmax = nn.Softmax()
 
     # switch to evaluate mode
-    model.eval()
+    model_1.eval()
+    model_2.eval()
+    model_3.eval()
 
     with torch.no_grad():
         end = time.time()
