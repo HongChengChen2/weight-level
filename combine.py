@@ -215,7 +215,7 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             if args.gpu is not None:
                 input = input.cuda(args.gpu, non_blocking=True)
             target = target.cuda(args.gpu, non_blocking=True) # 0*100 + 1*100 +2*100
-            #print("target:",target)
+            print("target:",target)
             # compute output,out put is a tensor
             output_1 = model_1(input)
             output_1= F.softmax(output_1, dim=1) # calculate as row
@@ -223,7 +223,7 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             output_2= F.softmax(output_2, dim=1)
             output_3 = model_3(input)
             output_3= F.softmax(output_3, dim=1)
-            print(output_2)
+            #print(output_2)
 
             out_size = output_1.size()
             row = out_size[0] 
@@ -234,12 +234,13 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             #print("output_3:",output_3)
             o2_1 , o2_2 = output_2.chunk(2,dim=1)
             output_2 = torch.cat([o2_1,zero_tensor,o2_2],dim=1)
-            print(output_2)
+            #print(output_2)
 
-            #print("output:",output)
             #print("[0][0] :",output[0][0].item())
 
             output = output_1 + output_2 + output_3
+            print("output:",output)
+            
             loss = criterion(output, target)
 
             # measure accuracy and record loss
