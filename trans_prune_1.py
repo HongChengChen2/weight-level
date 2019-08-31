@@ -178,6 +178,8 @@ def main():
     
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
+    model.cuda(args.gpu)
+
     test_acc0 = validate(test_loader, model, criterion)
     print("---test2 val3-----")
     test_acc0_val = validate(val_loader, model, criterion)
