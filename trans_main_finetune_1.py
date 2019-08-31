@@ -174,9 +174,9 @@ def main():
             normalize,
         ])
 
-    train_dataset = datasets.ImageFolder(valdir_train, transform=data_transform)
-    test_dataset = datasets.ImageFolder(valdir_test, transform=data_transform)
-    val_dataset = datasets.ImageFolder(valdir_val, transform=data_transform)
+    train_dataset = datasets.ImageFolder(traindir, transform=data_transform)
+    test_dataset = datasets.ImageFolder(testdir, transform=data_transform)
+    val_dataset = datasets.ImageFolder(valdir, transform=data_transform)
 
     if args.distributed:
         train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
