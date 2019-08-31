@@ -71,7 +71,6 @@ parser.add_argument('--seed', default=None, type=int,
                     help='seed for initializing training. ')
 parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
-parser.add_argument('--percent',default=0.1,type=float)
 parser.add_argument('--save',default='',type=str)
 
 best_prec1 = 0
