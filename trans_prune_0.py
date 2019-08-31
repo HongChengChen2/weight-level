@@ -199,14 +199,14 @@ def main():
     print("---test2 val3-----")
     test_acc0_val = validate(val_loader, model, criterion)
 
-    '''
+    
     save_checkpoint({
             'epoch': 0,
             'state_dict': model.state_dict(),
             'acc': test_acc0,
             'best_acc': 0.,
         }, False, checkpoint=args.save)
-    '''
+    
 
     ''' a test
     model_new = models.__dict__[args.arch]()
