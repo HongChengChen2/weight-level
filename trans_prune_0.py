@@ -197,7 +197,7 @@ def main():
 
     test_acc0 = validate(test_loader, model, criterion)
     print("---test2 val3-----")
-    test_acc0 = validate(val_loader, model, criterion)
+    test_acc0_val = validate(val_loader, model, criterion)
 
     '''
     save_checkpoint({

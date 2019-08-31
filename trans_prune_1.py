@@ -203,6 +203,8 @@ def main():
     model.train(False)
 
     test_acc0 = validate(test_loader, model, criterion)
+    print("---test2 val3-----")
+    test_acc0_val = validate(val_loader, model, criterion)
     #############################################################################################################################
     total = 0
     for m in model.modules():
@@ -237,6 +239,8 @@ def main():
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
     ##############################################################################################################################
     test_acc1 = validate(test_loader, model, criterion)
+    print("---test2 val3-----")
+    test_acc1_val = validate(val_loader, model, criterion)
 
     save_checkpoint({
             'epoch': 0,
