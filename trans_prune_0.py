@@ -134,6 +134,7 @@ def main():
 
     valdir_train = os.path.join(args.data, 'train/')
     valdir_test = os.path.join(args.data, 'test/')
+    valdir_val = os.path.join(args.data, 'val/')
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -152,6 +153,8 @@ def main():
     train_loader = torch.utils.data.DataLoader(train_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset , batch_size=args.batch_size, shuffle=True,
+        num_workers=args.workers, pin_memory=True)    
+    val_loader = torch.utils.data.DataLoader(test_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
@@ -192,6 +195,8 @@ def main():
     model.train(False)
 
     test_acc0 = validate(test_loader, model, criterion)
+    print("---test2 val3-----")
+    test_acc0 = validate(val_loader, model, criterion)
 
     '''
     save_checkpoint({

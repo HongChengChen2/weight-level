@@ -111,13 +111,8 @@ def main():
     else:
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
-
-    if args.resume:
-        # Load checkpoint.
-        print('==> Resuming from checkpoint..')
-        assert os.path.isfile(args.resume), 'Error: no checkpoint directory found!'
-        checkpoint = torch.load(args.resume)
-        model.load_state_dict(checkpoint)
+        num_ftrs = model.classifier[6].in_features
+        model.classifier[6] = nn.Linear(num_ftrs, 3)
 
     if args.gpu is not None:
         model = model.cuda(args.gpu) #this way
@@ -131,6 +126,17 @@ def main():
 
         else:
             model = torch.nn.DataParallel(model).cuda()
+
+    if args.resume:
+        # Load checkpoint.
+        if os.path.isfile(args.resume):
+            print("=> loading checkpoint '{}'".format(args.resume))
+            checkpoint = torch.load(args.resume).get('state_dict')
+            #print(checkpoint.keys())  
+            model.load_state_dict(checkpoint)
+
+        else:
+            print("=> no checkpoint found at '{}'".format(args.resume))
 
 
     valdir_train = os.path.join(args.data, 'train/')
