@@ -140,7 +140,8 @@ def main():
 
 
     valdir_train = os.path.join(args.data, 'train/')
-    valdir_test = os.path.join(args.data, 'val/')
+    valdir_test = os.path.join(args.data, 'test/')
+    valdir_val = os.path.join(args.data, 'val/')
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -155,10 +156,13 @@ def main():
 
     train_dataset = datasets.ImageFolder(valdir_train, transform=data_transform)
     test_dataset = datasets.ImageFolder(valdir_test, transform=data_transform)
+    val_dataset = datasets.ImageFolder(valdir_val, transform=data_transform)
 
     train_loader = torch.utils.data.DataLoader(train_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
     test_loader = torch.utils.data.DataLoader(test_dataset , batch_size=args.batch_size, shuffle=True,
+        num_workers=args.workers, pin_memory=True)
+    val_loader = torch.utils.data.DataLoader(val_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)

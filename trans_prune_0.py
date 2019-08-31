@@ -149,7 +149,7 @@ def main():
 
     train_dataset = datasets.ImageFolder(valdir_train, transform=data_transform)
     test_dataset = datasets.ImageFolder(valdir_test, transform=data_transform)
-    val_dataset = datasets.ImageFolder(val_dataset, transform=data_transform)
+    val_dataset = datasets.ImageFolder(valdir_val, transform=data_transform)
 
     train_loader = torch.utils.data.DataLoader(train_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
