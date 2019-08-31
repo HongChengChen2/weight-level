@@ -133,7 +133,7 @@ def main():
 
 
     valdir_train = os.path.join(args.data, 'train/')
-    valdir_test = os.path.join(args.data, 'val/')
+    valdir_test = os.path.join(args.data, 'test/')
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -289,7 +289,7 @@ def accuracy(output, target, topk=(1,)):
         #print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
-        print("pred.t():",pred)
+        #print("pred.t():",pred)
         #print("size:",pred[0][0].type()) #5,12
 
 
