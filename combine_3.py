@@ -69,7 +69,6 @@ parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
 parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
-parser.add_argument('--save',default='',type=str)
 
 best_prec1 = 0
 
@@ -82,8 +81,6 @@ def main():
         warnings.warn('You have chosen a specific GPU. This will completely '
                       'disable data parallelism.')
 
-    if not os.path.exists(args.save):
-        os.mkdir(args.save)
 
     args.distributed = args.world_size > 1
 
@@ -99,15 +96,15 @@ def main():
         print("=> creating model '{}'".format(args.arch))
         model_1 = models.__dict__[args.arch]()
         num_ftrs = model_1.classifier[6].in_features
-        model_1.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
+        model_1.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
         
         model_2 = models.__dict__[args.arch]()
         num_ftrs = model_2.classifier[6].in_features
-        model_2.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
+        model_2.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
     
         model_3 = models.__dict__[args.arch]()
         num_ftrs = model_3.classifier[6].in_features
-        model_3.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
+        model_3.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
     
 
     
@@ -223,15 +220,6 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             output_2= F.softmax(output_2, dim=1)
             output_3 = model_3(input)
             output_3= F.softmax(output_3, dim=1)
-            #print(output_2)
-
-            out_size = output_1.size()
-            row = out_size[0] 
-            zero_tensor = torch.FloatTensor(row,1).zero_().cuda()
-            output_1 = torch.cat([output_1,zero_tensor],dim=1)
-            output_3 = torch.cat([zero_tensor, output_3],dim=1)
-            o2_1 , o2_2 = output_2.chunk(2,dim=1)
-            output_2 = torch.cat([o2_1,zero_tensor,o2_2],dim=1)
             #print(output_2)
 
             output = output_1 + output_2 + output_3
