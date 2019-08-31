@@ -212,6 +212,7 @@ def main():
                 format(k, mask.numel(), int(torch.sum(mask))))
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
     ##############################################################################################################################
+    print(model.classifier[6].in_features)
     print("--- test2 -----")
     test_acc1 = validate(test_loader, model, criterion)
     print("--- val3 -----")
@@ -272,7 +273,7 @@ def validate(val_loader, model, criterion):
             if args.gpu is not None:
                 input = input.cuda(args.gpu, non_blocking=True)
             target = target.cuda(args.gpu, non_blocking=True) # 0*100 + 1*100 +2*100
-            print("target:",target)
+            #print("target:",target)
             # compute output,out put is a tensor
             output = model(input)
 
@@ -319,7 +320,7 @@ def accuracy(output, target, topk=(1,)):
         #print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
-        print("pred.t():",pred)
+        #print("pred.t():",pred)
         #print("size:",pred[0][0].type()) #5,12
 
 
