@@ -249,7 +249,7 @@ def validate(val_loader, model, criterion):
             if args.gpu is not None:
                 input = input.cuda(args.gpu, non_blocking=True)
             target = target.cuda(args.gpu, non_blocking=True) # 0*100 + 1*100 +2*100
-            #print("target:",target)
+            print("target:",target)
             # compute output,out put is a tensor
             output = model(input)
 
@@ -292,11 +292,10 @@ def accuracy(output, target, topk=(1,)):
         #print("batch_size",batch_size)
         maxk = max(topk) # = 5
         _, pred = output.topk(maxk, 1, True, True) #sort and get top k and their index
-        print("pred:",pred) #is index 5col xrow
-        #print("pred after:",pred)
+        #print("pred:",pred) #is index 5col xrow
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
-        #print("pred.t():",pred)
+        print("pred.t():",pred)
         #print("size:",pred[0][0].type()) #5,12
 
 
