@@ -212,7 +212,7 @@ def main():
                 format(k, mask.numel(), int(torch.sum(mask))))
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
     ##############################################################################################################################
-    print(model.classifier[6].out_features)
+    #print(model.classifier[6].out_features)
     print("--- test2 -----")
     test_acc1 = validate(test_loader, model, criterion)
     print("--- val3 -----")

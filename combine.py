@@ -69,7 +69,6 @@ parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
 parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
-parser.add_argument('--save',default='',type=str)
 
 best_prec1 = 0
 
@@ -81,9 +80,6 @@ def main():
     if args.gpu is not None:
         warnings.warn('You have chosen a specific GPU. This will completely '
                       'disable data parallelism.')
-
-    if not os.path.exists(args.save):
-        os.mkdir(args.save)
 
     args.distributed = args.world_size > 1
 
