@@ -196,8 +196,10 @@ def main():
 def validate(val_loader, model_1, model_2, model_3, criterion):
     # AverageMeter() : Computes and stores the average and current value
     batch_time = AverageMeter()
-    losses = AverageMeter()
-    top1 = AverageMeter()
+    losses_before = AverageMeter()
+    losses_after = AverageMeter()
+    top1_before = AverageMeter()
+    top1_after = AverageMeter()
     #zero_tensor = torch.FloatTensor(n, m)
 
     # switch to evaluate mode
@@ -219,10 +221,12 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             output_2= F.softmax(output_2, dim=1)
             output_3 = model_3(input)
             output_3= F.softmax(output_3, dim=1)
+
+            output_before = output_1 + output_2 + output_3
             print("output1:",output_1)
             print("output2:",output_2)
             print("output3:",output_3)
-            print("output:",output_1 + output_2 + output_3)
+            print("output:",output_before)
 
             #print(output_2)
 
@@ -253,20 +257,26 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
 
             #print(output_2)
 
-            output = output_1 + output_2 + output_3
+            output_after = output_1 + output_2 + output_3
 
             for x in range(row):
-                output[x][0] = torch.sqrt(output[x][0]/3)
-                output[x][1] = torch.sqrt(output[x][1]/3)
-                output[x][2] = torch.sqrt(output[x][2]/3)
-            print("output:",output)
+                output_after[x][0] = torch.sqrt(output_after[x][0]/3)
+                output_after[x][1] = torch.sqrt(output_after[x][1]/3)
+                output_after[x][2] = torch.sqrt(output_after[x][2]/3)
+            print("output_after:",output_after)
             
-            loss = criterion(output, target)
+            loss_before = criterion(output_before, target)
+            loss_after = criterion(output_after, target)
 
             # measure accuracy and record loss
-            prec1, prec5 = accuracy(output, target, topk=(1, 1))
-            losses.update(loss.item(), input.size(0))
-            top1.update(prec1[0], input.size(0))
+            prec1_before, prec5 = accuracy(output_before, target, topk=(1, 1))
+            prec1_after, prec5 = accuracy(output_after, target, topk=(1, 1))
+
+            losses_before.update(loss_before.item(), input.size(0))
+            losses_after.update(loss_after.item(), input.size(0))
+
+            top1_before.update(prec1_before[0], input.size(0))
+            top1_after.update(prec1_after[0], input.size(0))
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -280,7 +290,8 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
                        i, len(val_loader), batch_time=batch_time, loss=losses,
                        top1=top1))
 
-        print(' * Prec@1 {top1.avg:.3f}'.format(top1=top1))
+        print(' * Prec@1 before {top1.avg:.3f}'.format(top1=top1_before))
+        print(' * Prec@1 after {top1.avg:.3f}'.format(top1=top1_after))
 
     return top1.avg
 
