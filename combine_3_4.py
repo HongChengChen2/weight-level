@@ -95,15 +95,15 @@ def main():
         print("=> creating model '{}'".format(args.arch))
         model_1 = models.__dict__[args.arch]()
         num_ftrs = model_1.classifier[6].in_features
-        model_1.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
+        model_1.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
         
         model_2 = models.__dict__[args.arch]()
         num_ftrs = model_2.classifier[6].in_features
-        model_2.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
+        model_2.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
     
         model_3 = models.__dict__[args.arch]()
         num_ftrs = model_3.classifier[6].in_features
-        model_3.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
+        model_3.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
     
 
     
@@ -226,13 +226,13 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             zero_tensor = torch.FloatTensor(row,1).zero_().cuda()
 
             o1_1 , o1_2 ,o1_3= output_1.chunk(3,dim=1)
-            output_1 = torch.cat([o1_1,o1_2,zero_tensor,o1_3],dim=1)
+            output_1 = torch.cat([o1_1,o1_2,zero_tensor],dim=1)
 
             o2_1 , o2_2, o2_3 = output_2.chunk(3,dim=1)
-            output_2 = torch.cat([o2_1,zero_tensor,o2_3,o2_2],dim=1)
+            output_2 = torch.cat([o2_1,zero_tensor,o2_3],dim=1)
 
             o3_1 , o3_2, o3_3 = output_3.chunk(3,dim=1)
-            output_3 = torch.cat([zero_tensor, o3_2,o3_3,o3_1],dim=1)
+            output_3 = torch.cat([zero_tensor, o3_2,o3_3],dim=1)
 
             #print(output_2)
 
