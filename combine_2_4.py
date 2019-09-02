@@ -294,7 +294,7 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
         print(' * Prec@1 before {top1.avg:.3f}'.format(top1=top1_before))
         print(' * Prec@1 after {top1.avg:.3f}'.format(top1=top1_after))
 
-    return top1.avg
+    return top1_after.avg
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
