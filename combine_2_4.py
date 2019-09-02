@@ -285,10 +285,11 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             if i % args.print_freq == 0:
                 print('Test: [{0}/{1}]\t'
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
-                       i, len(val_loader), batch_time=batch_time, loss=losses,
-                       top1=top1))
+                      'Loss before {loss.val:.4f} ({loss.avg:.4f})\t'
+                      'prec1_before @1 {top1.val:.3f} \t'
+                      'prec1_after @1 {top1_1.val:.3f} \t'.format(
+                       i, len(val_loader), batch_time=batch_time, loss=losses_before,
+                       top1=top1_before, top1_1=top1_after))
 
         print(' * Prec@1 before {top1.avg:.3f}'.format(top1=top1_before))
         print(' * Prec@1 after {top1.avg:.3f}'.format(top1=top1_after))
