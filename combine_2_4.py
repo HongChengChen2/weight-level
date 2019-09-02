@@ -222,11 +222,6 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             output_3 = model_3(input)
             output_3= F.softmax(output_3, dim=1)
 
-            output_before = output_1 + output_2 + output_3
-            print("output1:",output_1)
-            print("output2:",output_2)
-            print("output3:",output_3)
-            print("output:",output_before)
 
             #print(output_2)
 
@@ -234,21 +229,31 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             row = out_size[0] 
             zero_tensor = torch.FloatTensor(row,1).zero_().cuda()
 
+
             o1_1 , o1_2 ,o1_3= output_1.chunk(3,dim=1)
+            output_1_0 = torch.cat([o1_1,o1_2,zero_tensor],dim=1)
+
+            o2_1 , o2_2, o2_3 = output_2.chunk(3,dim=1)
+            output_2_0 = torch.cat([o2_1,zero_tensor,o2_3],dim=1)
+
+            o3_1 , o3_2, o3_3 = output_3.chunk(3,dim=1)
+            output_3_0 = torch.cat([zero_tensor, o3_2,o3_3],dim=1)
+            output_before = output_1_0 + output_2_0 + output_3_0
+            print("output:",output_before)
+
+
             for x in range(row):
                 o1_1[x][0] = o1_1[x][0]*o1_1[x][0]
                 o1_2[x][0] = o1_2[x][0]*o1_2[x][0]
                 o1_3[x][0] = o1_3[x][0]*o1_3[x][0]
             output_1 = torch.cat([o1_1,o1_2,zero_tensor],dim=1)
 
-            o2_1 , o2_2, o2_3 = output_2.chunk(3,dim=1)
             for x in range(row):
                 o2_1[x][0] = o2_1[x][0]*o2_1[x][0]
                 o2_2[x][0] = o2_2[x][0]*o2_2[x][0]
                 o2_3[x][0] = o2_3[x][0]*o2_3[x][0]
             output_2 = torch.cat([o2_1,zero_tensor,o2_3],dim=1)
 
-            o3_1 , o3_2, o3_3 = output_3.chunk(3,dim=1)
             for x in range(row):
                 o3_1[x][0] = o3_1[x][0]*o3_1[x][0]
                 o3_2[x][0] = o3_2[x][0]*o3_2[x][0]
