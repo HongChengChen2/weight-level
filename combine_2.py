@@ -227,8 +227,10 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
 
             o1_1 , o1_2 ,o1_3= output_1.chunk(3,dim=1)
             lenth = o1_1.size()[0] #64
-            print(o1_1)
-            print(o1_1[0])
+            print(o1_1[0][0])
+            for x in range(lenth):
+                o1_1[x][0] = o1_1[x][0]*o1_1[x][0]
+
             print(o1_1[0][0])
 
             print(bug)
