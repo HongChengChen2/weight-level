@@ -230,21 +230,21 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
                 o1_1[x][0] = o1_1[x][0]*o1_1[x][0]
                 o1_2[x][0] = o1_2[x][0]*o1_2[x][0]
                 o1_3[x][0] = o1_3[x][0]*o1_3[x][0]
-            output_1 = torch.cat([o1_1,o1_2,o1_3],dim=1)
+            output_1 = torch.cat([o1_1,o1_2,zero_tensor],dim=1)
 
             o2_1 , o2_2, o2_3 = output_2.chunk(3,dim=1)
             for x in range(row):
                 o2_1[x][0] = o2_1[x][0]*o2_1[x][0]
                 o2_2[x][0] = o2_2[x][0]*o2_2[x][0]
                 o2_3[x][0] = o2_3[x][0]*o2_3[x][0]
-            output_2 = torch.cat([o2_1,o2_2,o2_3],dim=1)
+            output_2 = torch.cat([o2_1,zero_tensor,o2_3],dim=1)
 
             o3_1 , o3_2, o3_3 = output_3.chunk(3,dim=1)
             for x in range(row):
                 o3_1[x][0] = o3_1[x][0]*o3_1[x][0]
                 o3_2[x][0] = o3_2[x][0]*o3_2[x][0]
                 o3_3[x][0] = o3_3[x][0]*o3_3[x][0]
-            output_3 = torch.cat([o3_1, o3_2,o3_3],dim=1)
+            output_3 = torch.cat([zero_tensor, o3_2,o3_3],dim=1)
 
             #print(output_2)
 
