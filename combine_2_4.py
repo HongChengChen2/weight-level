@@ -251,6 +251,9 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             output = output_1 + output_2 + output_3
 
             print("output:",output)
+            print("output1:",output_1)
+            print("output2:",output_2)
+            print("output3:",output_3)
             for x in range(row):
                 output[x][0] = torch.sqrt(output[x][0]/3)
                 output[x][1] = torch.sqrt(output[x][1]/3)
