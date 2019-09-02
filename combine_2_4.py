@@ -221,7 +221,9 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             output_2= F.softmax(output_2, dim=1)
             output_3 = model_3(input)
             output_3= F.softmax(output_3, dim=1)
-
+            print("output_1:",output_1)
+            print("output_2:",output_2)
+            print("output_3:",output_3)
 
             #print(output_2)
 
@@ -239,7 +241,7 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             o3_1 , o3_2, o3_3 = output_3.chunk(3,dim=1)
             output_3_0 = torch.cat([zero_tensor, o3_2,o3_3],dim=1)
             output_before = output_1_0 + output_2_0 + output_3_0
-            print("output:",output_before)
+            print("output +:",output_before)
 
 
             for x in range(row):
