@@ -252,9 +252,9 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
 
             print("output:",output)
             for x in range(row):
-                output[x][0] = np.sqrt(output[x][0]/3)
-                output[x][1] = np.sqrt(output[x][1]/3)
-                output[x][2] = np.sqrt(output[x][2]/3)
+                output[x][0] = torch.sqrt(output[x][0]/3)
+                output[x][1] = torch.sqrt(output[x][1]/3)
+                output[x][2] = torch.sqrt(output[x][2]/3)
             print("output:",output)
             
             loss = criterion(output, target)
