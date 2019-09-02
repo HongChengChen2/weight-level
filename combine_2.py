@@ -249,9 +249,11 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             #print(output_2)
 
             output = output_1 + output_2 + output_3
-            print("output_1:",output_1)
-            print("output_2:",output_2)
-            print("output_3:",output_3)
+            print("output:",output)
+            for x in range(row)
+                output[x][0] = np.sqrt(output[x][0]/3)
+                output[x][1] = np.sqrt(output[x][1]/3)
+                output[x][2] = np.sqrt(output[x][2]/3)
             print("output:",output)
 
             loss = criterion(output, target)
