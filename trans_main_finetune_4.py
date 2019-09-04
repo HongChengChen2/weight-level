@@ -340,7 +340,7 @@ def validate(val_loader, model, criterion):
 
     return top1.avg
 
-def save_checkpoint(state, is_best, checkpoint, filename='scratch4c.pth.tar'):
+def save_checkpoint(state, is_best, checkpoint, filename='scratch4c_2.pth.tar'):
     filepath = os.path.join(checkpoint, filename)
     torch.save(state, filepath)
 
