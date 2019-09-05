@@ -204,7 +204,7 @@ def main():
     save_checkpoint({
             'epoch': 0,
             'state_dict': model.state_dict(),
-            'acc': test_acc0,
+            'acc': 0,
             'best_acc': 0.,
         }, False, checkpoint=args.save)
     
