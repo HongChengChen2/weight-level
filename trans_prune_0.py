@@ -195,8 +195,8 @@ def main():
 
     model.train(False)
 
-    #print("--- test2 -----")
-    #test_acc0 = validate(test_loader, model, criterion)
+    print("--- test2 -----")
+    test_acc0 = validate(test_loader, model, criterion)
     print("--- val3  -----")
     test_acc0_val = validate(val_loader, model, criterion)
 

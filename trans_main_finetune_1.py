@@ -225,8 +225,8 @@ def main():
             'optimizer' : optimizer.state_dict(),
         }, is_best,checkpoint=args.save)
 
-    #validate(test_loader, model, criterion)
-    #print("---test2 val3-----")
+    validate(test_loader, model, criterion)
+    print("---test2 val3-----")
     validate(val_loader, model, criterion)
 
     return
