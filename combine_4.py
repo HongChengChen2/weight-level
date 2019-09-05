@@ -171,7 +171,7 @@ def main():
         num_workers=args.workers, pin_memory=True)
 
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)    
-    test_acc = validate(test_loader, model_1, model_2, model_3, criterion)
+    #test_acc = validate(test_loader, model_1, model_2, model_3, criterion)
     print("---------------------------------------------------------------")
     test_acc2 = validate(val_loader, model_1, model_2, model_3, criterion)
    
@@ -243,9 +243,9 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             output_3 = torch.cat([zero_tensor, o3_2,o3_3,o3_1],dim=1)
 
             output = output_1 + output_2 + output_3
-            #print("output_1:",output_1)
-            #print("output_2:",output_2)
-            #print("output_3:",output_3)
+            print("output_1:",output_1)
+            print("output_2:",output_2)
+            print("output_3:",output_3)
             print("output:",output)
 
             loss = criterion(output, target)
