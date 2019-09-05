@@ -167,7 +167,7 @@ def main():
     
 
     num_ftrs = model.classifier[6].in_features
-    model.classifier[6] = nn.Linear(num_ftrs, 4) #only train the last layer
+    model.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
     
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
