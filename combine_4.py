@@ -135,9 +135,9 @@ def main():
     if args.resume:
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
-        re_path1 = os.path.join(args.resume, 'data1/pruned0c.pth.tar')
-        re_path2 = os.path.join(args.resume, 'data2/pruned0c.pth.tar')
-        re_path3 = os.path.join(args.resume, 'data3/pruned0c.pth.tar')
+        re_path1 = os.path.join(args.resume, 'data1/scratch4c.pth.tar')
+        re_path2 = os.path.join(args.resume, 'data2/scratch4c.pth.tar')
+        re_path3 = os.path.join(args.resume, 'data3/scratch4c.pth.tar')
         assert os.path.isfile(re_path1), 'Error: no checkpoint1 directory found!'
         assert os.path.isfile(re_path2), 'Error: no checkpoint2 directory found!'
         assert os.path.isfile(re_path3), 'Error: no checkpoint3 directory found!'
