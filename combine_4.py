@@ -234,18 +234,18 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
 
 
             o1_1 , o1_2 ,o1_3= output_1.chunk(3,dim=1)
-            output_1 = torch.cat([o1_1,o1_2,zero_tensor,o1_3],dim=1)
+            output_1 = torch.cat([o1_1,o1_2,zero_tensor,o1_3*0.7],dim=1)
 
             o2_1 , o2_2, o2_3 = output_2.chunk(3,dim=1)
-            output_2 = torch.cat([o2_1,zero_tensor,o2_3,o2_2],dim=1)
+            output_2 = torch.cat([o2_1,zero_tensor,o2_3,o2_2*0.7],dim=1)
 
             o3_1 , o3_2, o3_3 = output_3.chunk(3,dim=1)
-            output_3 = torch.cat([zero_tensor, o3_2,o3_3,o3_1],dim=1)
+            output_3 = torch.cat([zero_tensor, o3_2,o3_3,o3_1*0.7],dim=1)
 
             output = output_1 + output_2 + output_3
-            print("output_1:",output_1)
-            print("output_2:",output_2)
-            print("output_3:",output_3)
+            #print("output_1:",output_1)
+            #print("output_2:",output_2)
+            #print("output_3:",output_3)
             print("output:",output)
 
             loss = criterion(output, target)

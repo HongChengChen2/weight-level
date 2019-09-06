@@ -81,6 +81,7 @@ def main():
         warnings.warn('You have chosen a specific GPU. This will completely '
                       'disable data parallelism.')
 
+
     args.distributed = args.world_size > 1
 
     if args.distributed:
@@ -134,9 +135,9 @@ def main():
     if args.resume:
         # Load checkpoint.
         print('==> Resuming from checkpoint..')
-        re_path1 = os.path.join(args.resume, 'data1/pruned0c.pth.tar')
-        re_path2 = os.path.join(args.resume, 'data2/pruned0c.pth.tar')
-        re_path3 = os.path.join(args.resume, 'data3/pruned0c.pth.tar')
+        re_path1 = os.path.join(args.resume, 'data1/scratch3c.pth.tar')
+        re_path2 = os.path.join(args.resume, 'data2/scratch3c.pth.tar')
+        re_path3 = os.path.join(args.resume, 'data3/scratch3c.pth.tar')
         assert os.path.isfile(re_path1), 'Error: no checkpoint1 directory found!'
         assert os.path.isfile(re_path2), 'Error: no checkpoint2 directory found!'
         assert os.path.isfile(re_path3), 'Error: no checkpoint3 directory found!'
@@ -148,6 +149,7 @@ def main():
         model_3.load_state_dict(checkpoint3) #dog rabbit
 
     valdir_test = os.path.join(args.data, 'test/')
+    valdir_val = os.path.join(args.data, 'val/')
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -161,12 +163,17 @@ def main():
         ])
 
     test_dataset = datasets.ImageFolder(valdir_test, transform=data_transform)
+    val_dataset = datasets.ImageFolder(valdir_val, transform=data_transform)
 
     test_loader = torch.utils.data.DataLoader(test_dataset , batch_size=args.batch_size, shuffle=True,
+        num_workers=args.workers, pin_memory=True)
+    val_loader = torch.utils.data.DataLoader(val_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)    
     test_acc = validate(test_loader, model_1, model_2, model_3, criterion)
+    print("---------------------------------------------------------------")
+    test_acc2 = validate(val_loader, model_1, model_2, model_3, criterion)
    
 
     ''' a test
@@ -196,10 +203,8 @@ def main():
 def validate(val_loader, model_1, model_2, model_3, criterion):
     # AverageMeter() : Computes and stores the average and current value
     batch_time = AverageMeter()
-    losses_before = AverageMeter()
-    losses_after = AverageMeter()
-    top1_before = AverageMeter()
-    top1_after = AverageMeter()
+    losses = AverageMeter()
+    top1 = AverageMeter()
     #zero_tensor = torch.FloatTensor(n, m)
 
     # switch to evaluate mode
@@ -221,10 +226,6 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             output_2= F.softmax(output_2, dim=1)
             output_3 = model_3(input)
             output_3= F.softmax(output_3, dim=1)
-            print("output_1:",output_1)
-            print("output_2:",output_2)
-            print("output_3:",output_3)
-
             #print(output_2)
 
             out_size = output_1.size()
@@ -233,57 +234,26 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
 
 
             o1_1 , o1_2 ,o1_3= output_1.chunk(3,dim=1)
-            output_1_0 = torch.cat([o1_1,o1_2,zero_tensor],dim=1)
+            output_1 = torch.cat([o1_1,o1_2,zero_tensor,o1_3],dim=1)
 
             o2_1 , o2_2, o2_3 = output_2.chunk(3,dim=1)
-            output_2_0 = torch.cat([o2_1,zero_tensor,o2_3],dim=1)
+            output_2 = torch.cat([o2_1,zero_tensor,o2_3,o2_2],dim=1)
 
             o3_1 , o3_2, o3_3 = output_3.chunk(3,dim=1)
-            output_3_0 = torch.cat([zero_tensor, o3_2,o3_3],dim=1)
-            output_before = output_1_0 + output_2_0 + output_3_0
-            print("output +:",output_before)
+            output_3 = torch.cat([zero_tensor, o3_2,o3_3,o3_1],dim=1)
 
+            output = output_1 + output_2 + output_3
+            print("output_1:",output_1)
+            print("output_2:",output_2)
+            print("output_3:",output_3)
+            print("output:",output)
 
-            for x in range(row):
-                o1_1[x][0] = o1_1[x][0]*o1_1[x][0]
-                o1_2[x][0] = o1_2[x][0]*o1_2[x][0]
-                o1_3[x][0] = o1_3[x][0]*o1_3[x][0]
-            output_1 = torch.cat([o1_1,o1_2,zero_tensor],dim=1)
-
-            for x in range(row):
-                o2_1[x][0] = o2_1[x][0]*o2_1[x][0]
-                o2_2[x][0] = o2_2[x][0]*o2_2[x][0]
-                o2_3[x][0] = o2_3[x][0]*o2_3[x][0]
-            output_2 = torch.cat([o2_1,zero_tensor,o2_3],dim=1)
-
-            for x in range(row):
-                o3_1[x][0] = o3_1[x][0]*o3_1[x][0]
-                o3_2[x][0] = o3_2[x][0]*o3_2[x][0]
-                o3_3[x][0] = o3_3[x][0]*o3_3[x][0]
-            output_3 = torch.cat([zero_tensor, o3_2,o3_3],dim=1)
-
-            #print(output_2)
-
-            output_after = output_1 + output_2 + output_3
-
-            for x in range(row):
-                output_after[x][0] = torch.sqrt(output_after[x][0]/3)
-                output_after[x][1] = torch.sqrt(output_after[x][1]/3)
-                output_after[x][2] = torch.sqrt(output_after[x][2]/3)
-            print("output_after:",output_after)
-            
-            loss_before = criterion(output_before, target)
-            loss_after = criterion(output_after, target)
+            loss = criterion(output, target)
 
             # measure accuracy and record loss
-            prec1_before, prec5 = accuracy(output_before, target, topk=(1, 1))
-            prec1_after, prec5 = accuracy(output_after, target, topk=(1, 1))
-
-            losses_before.update(loss_before.item(), input.size(0))
-            losses_after.update(loss_after.item(), input.size(0))
-
-            top1_before.update(prec1_before[0], input.size(0))
-            top1_after.update(prec1_after[0], input.size(0))
+            prec1, prec5 = accuracy(output, target, topk=(1, 1))
+            losses.update(loss.item(), input.size(0))
+            top1.update(prec1[0], input.size(0))
 
             # measure elapsed time
             batch_time.update(time.time() - end)
@@ -292,16 +262,14 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             if i % args.print_freq == 0:
                 print('Test: [{0}/{1}]\t'
                       'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                      'Loss before {loss.val:.4f} ({loss.avg:.4f})\t'
-                      'prec1_before @1 {top1.val:.3f} \t'
-                      'prec1_after @1 {top1_1.val:.3f} \t'.format(
-                       i, len(val_loader), batch_time=batch_time, loss=losses_before,
-                       top1=top1_before, top1_1=top1_after))
+                      'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                      'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'.format(
+                       i, len(val_loader), batch_time=batch_time, loss=losses,
+                       top1=top1))
 
-        print(' * Prec@1 before + {top1.avg:.3f}'.format(top1=top1_before))
-        print(' * Prec@1 after pingfang + {top1.avg:.3f}'.format(top1=top1_after))
+        print(' * Prec@1 {top1.avg:.3f}'.format(top1=top1))
 
-    return top1_after.avg
+    return top1.avg
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""
