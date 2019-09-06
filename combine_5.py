@@ -238,23 +238,28 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             o1_1 , o1_2 ,o1_3= output_1.chunk(3,dim=1)
             output_1 = torch.cat([o1_1,o1_2,zero_tensor,o1_3],dim=1)
             _, output_1_max = output_1.topk(1, 1, True, True)
-            for count in range(row):
-                if output_1_max[count][0] == 3:
-                    output_1[count][3] = output_1[count][3] * args.hcc
+
 
             o2_1 , o2_2, o2_3 = output_2.chunk(3,dim=1)
             output_2 = torch.cat([o2_1,zero_tensor,o2_3,o2_2],dim=1)
             _, output_2_max = output_2.topk(1, 1, True, True)
-            for count in range(row):
-                if output_2_max[count][0] == 3:
-                    output_2[count][3] = output_2[count][3] * args.hcc
+
 
             o3_1 , o3_2, o3_3 = output_3.chunk(3,dim=1)
             output_3 = torch.cat([zero_tensor, o3_2,o3_3,o3_1],dim=1)
             _, output_3_max = output_3.topk(1, 1, True, True)
+
+
             for count in range(row):
-                if output_3_max[count][0] == 3:
+                max_plus = output_1_max[count][0] + output_2_max[count][0] +output_3_max[count][0]
+                if max_plus < 9:
+                    output_1[count][3] = output_1[count][3] * args.hcc
+                    output_2[count][3] = output_2[count][3] * args.hcc
                     output_3[count][3] = output_3[count][3] * args.hcc
+                else:
+                    output_1[count][3] = 9
+
+
 
             output = output_1 + output_2 + output_3
             #print("output_1:",output_1)
