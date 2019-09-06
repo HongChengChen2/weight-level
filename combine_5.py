@@ -240,7 +240,7 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             _, output_1_max = output_1.topk(1, 1, True, True)
             for count in range(row):
                 if output_1_max[count][0] == 3:
-                    output_1[count][4] = output_1[count][4] * 0.5
+                    output_1[count][3] = output_1[count][3] * 0.5
                     pass
             print(output_1_max)
             print(output_1)
