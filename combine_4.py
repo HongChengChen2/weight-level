@@ -67,6 +67,7 @@ parser.add_argument('--dist-url', default='tcp://224.66.41.62:23456', type=str,
                     help='url used to set up distributed training')
 parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
+parser.add_argument('--hcc',default=0.1,type=float)
 parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
 
@@ -234,13 +235,13 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
 
 
             o1_1 , o1_2 ,o1_3= output_1.chunk(3,dim=1)
-            output_1 = torch.cat([o1_1,o1_2,zero_tensor,o1_3*0.7],dim=1)
+            output_1 = torch.cat([o1_1,o1_2,zero_tensor,o1_3*args.hcc],dim=1)
 
             o2_1 , o2_2, o2_3 = output_2.chunk(3,dim=1)
-            output_2 = torch.cat([o2_1,zero_tensor,o2_3,o2_2*0.7],dim=1)
+            output_2 = torch.cat([o2_1,zero_tensor,o2_3,o2_2*args.hcc],dim=1)
 
             o3_1 , o3_2, o3_3 = output_3.chunk(3,dim=1)
-            output_3 = torch.cat([zero_tensor, o3_2,o3_3,o3_1*0.7],dim=1)
+            output_3 = torch.cat([zero_tensor, o3_2,o3_3,o3_1*args.hcc],dim=1)
 
             output = output_1 + output_2 + output_3
             #print("output_1:",output_1)
