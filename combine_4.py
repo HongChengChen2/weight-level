@@ -67,7 +67,7 @@ parser.add_argument('--dist-url', default='tcp://224.66.41.62:23456', type=str,
                     help='url used to set up distributed training')
 parser.add_argument('--dist-backend', default='gloo', type=str,
                     help='distributed backend')
-parser.add_argument('--hcc',default=0.1,type=float)
+parser.add_argument('--hcc',default=0.5,type=float)
 parser.add_argument('--gpu', default=None, type=int,
                     help='GPU id to use.')
 
