@@ -279,7 +279,7 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
 
 
             output = output_1 + output_2 + output_3
-            #print("output_1:",output_1)
+            print("output_1:",output_1)
             #print("output_2:",output_2)
             #print("output_3:",output_3)
             #print("output:",output)
