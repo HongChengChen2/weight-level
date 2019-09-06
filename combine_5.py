@@ -271,6 +271,9 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
                 elif output_2_max[count][0] == output_3_max[count][0] and output_1_max[count][0] ==2:
                     output_3[count][2] = 99
 
+                elif output_1_max[count][0] + output_2_max[count][0] + output_3_max[count][0] ==9:
+                    output_3[count][3] = 99
+
                 else:
                     output_1[count][3] = output_1[count][3] * args.hcc
                     output_2[count][3] = output_2[count][3] * args.hcc
