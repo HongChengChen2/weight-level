@@ -132,6 +132,7 @@ def main():
 
 
     valdir_test = os.path.join(args.data, 'test/')
+    valdir_val = os.path.join(args.data, 'val/')
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -146,6 +147,10 @@ def main():
 
     test_dataset = datasets.ImageFolder(valdir_test, transform=data_transform)
     test_loader = torch.utils.data.DataLoader(test_dataset , batch_size=args.batch_size, shuffle=True,
+        num_workers=args.workers, pin_memory=True)
+
+    val_dataset = datasets.ImageFolder(valdir_val, transform=data_transform)
+    val_loader = torch.utils.data.DataLoader(val_dataset , batch_size=args.batch_size, shuffle=True,
         num_workers=args.workers, pin_memory=True)
 
     criterion = nn.CrossEntropyLoss().cuda(args.gpu)
@@ -163,6 +168,8 @@ def main():
 
 
     test_acc0 = validate(test_loader, model, criterion)
+    print("==========================================")
+    test_acc0 = validate(val_loader, model, criterion)
     
     return
 
@@ -233,6 +240,8 @@ def accuracy(output, target, topk=(1,)):
                 elif pred[x][y] >=330 and pred[x][y]<=332 : #rabbits
                     pred[x][y] = 2
                     break
+                else:
+                    pred[x][y] = 3
         #print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
