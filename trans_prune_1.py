@@ -110,7 +110,7 @@ def main():
         print("=> creating model '{}'".format(args.arch))
         model = models.__dict__[args.arch]()
         num_ftrs = model.classifier[6].in_features
-        model.classifier[6] = nn.Linear(num_ftrs, 3)
+        model.classifier[6] = nn.Linear(num_ftrs, 2)
 
     if args.gpu is not None:
         model = model.cuda(args.gpu) #this way
@@ -175,9 +175,9 @@ def main():
 
     model.cuda(args.gpu)
 
-    print("--- test2 -----")
+    print("--- test with one class -----")
     test_acc0 = validate(test_loader, model, criterion)
-    print("--- val3 -----")
+    print("--- val with two classes -----")
     test_acc0_val = validate(val_loader, model, criterion)
     #############################################################################################################################
     total = 0
@@ -213,15 +213,15 @@ def main():
     print('Total conv params: {}, Pruned conv params: {}, Pruned ratio: {}'.format(total, pruned, pruned/total))
     ##############################################################################################################################
     #print(model.classifier[6].out_features)
-    print("--- test2 -----")
+    print("--- test with one class -----")
     test_acc1 = validate(test_loader, model, criterion)
-    print("--- val3 -----")
+    print("--- val with two classes -----")
     test_acc1_val = validate(val_loader, model, criterion)
 
     save_checkpoint({
             'epoch': 0,
             'state_dict': model.state_dict(),
-            'acc': test_acc1,
+            'acc': 0,
             'best_acc': 0.,
         }, False, checkpoint=args.save)
 

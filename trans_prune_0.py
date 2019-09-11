@@ -167,7 +167,7 @@ def main():
     
 
     num_ftrs = model.classifier[6].in_features
-    model.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
+    model.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
     
     optimizer = optim.Adam(model.parameters(),lr=0.001)
 
@@ -195,9 +195,9 @@ def main():
 
     model.train(False)
 
-    print("--- test2 -----")
+    print("--- test with one class -----")
     test_acc0 = validate(test_loader, model, criterion)
-    print("--- val3  -----")
+    print("--- val with two classes -----")
     test_acc0_val = validate(val_loader, model, criterion)
 
     
