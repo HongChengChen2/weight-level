@@ -25,6 +25,7 @@ from torch.autograd import Variable
 from collections import OrderedDict
 
 
+#63.333 63.333
 
 #only used data to compute accuracy, not in deciding which to prune
 
