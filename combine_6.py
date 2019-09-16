@@ -238,8 +238,6 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             o1_1 , o1_2 = output_1.chunk(2,dim=1)
             output_1 = torch.cat([o1_1,zero_tensor,zero_tensor,o1_2],dim=1)
             _, output_1_max = output_1.topk(1, 1, True, True)
-            print("output_1_max",output_1_max)
-
 
             o2_1 , o2_2 = output_2.chunk(2,dim=1)
             output_2 = torch.cat([zero_tensor,o2_1,zero_tensor,o2_2],dim=1)
