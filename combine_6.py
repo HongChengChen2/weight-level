@@ -97,15 +97,15 @@ def main():
         print("=> creating model '{}'".format(args.arch))
         model_1 = models.__dict__[args.arch]()
         num_ftrs = model_1.classifier[6].in_features
-        model_1.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
+        model_1.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
         
         model_2 = models.__dict__[args.arch]()
         num_ftrs = model_2.classifier[6].in_features
-        model_2.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
+        model_2.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
     
         model_3 = models.__dict__[args.arch]()
         num_ftrs = model_3.classifier[6].in_features
-        model_3.classifier[6] = nn.Linear(num_ftrs, 3) #only train the last layer
+        model_3.classifier[6] = nn.Linear(num_ftrs, 2) #only train the last layer
     
 
     
