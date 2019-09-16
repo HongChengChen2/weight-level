@@ -26,6 +26,8 @@ from collections import OrderedDict
 
 
 #only used data to compute accuracy, not in deciding which to prune
+#python trans_prune_0.py --arch alexnet --pretrained --epochs 60 --save /home/leander/hcc/prunWeight/save/ /home/leander/hcc/prunWeight/data
+
 
 model_names = sorted(name for name in models.__dict__
     if name.islower() and not name.startswith("__")
