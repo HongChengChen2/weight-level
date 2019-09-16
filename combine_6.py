@@ -219,17 +219,17 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             if args.gpu is not None:
                 input = input.cuda(args.gpu, non_blocking=True)
             target = target.cuda(args.gpu, non_blocking=True) # 0*100 + 1*100 +2*100
-            print("target:",target)
+            #print("target:",target)
             # compute output,out put is a tensor
             output_1 = model_1(input)
-            print("output_1 before",output_1)
+            #print("output_1 before",output_1)
 
-            output_1= F.softmax(output_1, dim=1) # calculate as row
-            print("output_1 softmax after",output_1)
+            #output_1= F.softmax(output_1, dim=1) # calculate as row
+            #print("output_1 softmax after",output_1)
             output_2 = model_2(input)
-            output_2= F.softmax(output_2, dim=1)
+            #output_2= F.softmax(output_2, dim=1)
             output_3 = model_3(input)
-            output_3= F.softmax(output_3, dim=1)
+            #output_3= F.softmax(output_3, dim=1)
             #print(output_2)
 
             out_size = output_1.size()
@@ -308,7 +308,7 @@ def accuracy(output, target, topk=(1,)):
         #print("pred after:",pred)
 
         pred = pred.t() # a zhuanzhi transpose xcol 5row
-        print("pred.t():",pred)
+        #print("pred.t():",pred)
         #print("size:",pred[0][0].type()) #5,12
 
 
