@@ -222,8 +222,10 @@ def validate(val_loader, model_1, model_2, model_3, criterion):
             print("target:",target)
             # compute output,out put is a tensor
             output_1 = model_1(input)
+            print("output_1 before",output_1)
+
             output_1= F.softmax(output_1, dim=1) # calculate as row
-            #print(output_1)
+            print("output_1 softmax after",output_1)
             output_2 = model_2(input)
             output_2= F.softmax(output_2, dim=1)
             output_3 = model_3(input)
